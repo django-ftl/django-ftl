@@ -56,7 +56,10 @@ setup(
         'django_ftl',
     ],
     include_package_data=True,
-    install_requires=[],
+    install_requires=[
+        'fluent',
+        'Django>=1.11',
+    ],
     license="MIT",
     zip_safe=False,
     keywords='django-ftl',
