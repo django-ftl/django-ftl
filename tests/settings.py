@@ -1,8 +1,6 @@
 # -*- coding: utf-8
 from __future__ import unicode_literals, absolute_import
 
-import django
-
 DEBUG = True
 USE_TZ = True
 
@@ -23,8 +21,20 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sites",
     "django_ftl",
+    "tests",
 ]
 
 SITE_ID = 1
 
 MIDDLEWARE = ()
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': []
+        },
+    },
+]

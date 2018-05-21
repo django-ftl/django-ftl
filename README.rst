@@ -21,7 +21,9 @@ This package builds upon the `Python implementation of Fluent
 * Integration into Django templates
 
 
-CURRENT STATUS: NOTHING IS IMPLEMENTED YET!
+CURRENT STATUS: Minimal functionality implemented (bundles and template tags),
+but no docs yet.
+
 
 Why would I use this?
 ---------------------
