@@ -17,7 +17,7 @@ system for today's world.
 This package builds upon the `Python implementation of Fluent
 <https://github.com/projectfluent/python-fluent>`_ and provides:
 
-* A more opinionated way to set up and managed your ``.ftl`` files
+* A more opinionated way to set up and manage your ``.ftl`` files
 * Integration into Django templates
 
 
@@ -69,7 +69,7 @@ fluent/django-ftl, with special handling of the zero case included, looks like
 this:
 
 
-English ``.ftl`` file::
+English ``main.ftl`` file::
 
   there-are-some-objects = { $count ->
       [0]     There are no objects
@@ -82,13 +82,19 @@ Python code:
 
 .. code-block:: python
 
-   msg = messageContext.format('there-are-some-objects', {'count': count})
+   # Setup:
+   bundle = Bundle(['main.ftl'])
+   activate_locale('en')
+
+   # Usage:
+   msg = bundle.format('there-are-some-objects', {'count': count})
+
 
 Or Django template code:
 
 .. code-block:: html+django
 
-   {% ftl 'server' 'there-are-some-objects' count=count %}
+   {% ftl-message 'there-are-some-objects' count=count %}
 
 
 
@@ -96,47 +102,6 @@ Documentation
 -------------
 
 The full documentation is at https://django-ftl.readthedocs.io.
-
-
-Quickstart
-----------
-
-Install django-ftl::
-
-    pip install django-ftl
-
-Add it to your ``INSTALLED_APPS``:
-
-.. code-block:: python
-
-    INSTALLED_APPS = (
-        ...
-        'django_ftl.apps.DjangoFtlConfig',
-        ...
-    )
-
-Install our fork of the python-fluent repo -
-https://github.com/django-ftl/python-fluent/tree/implement_format - and the
-``implement_format`` branch::
-
-    pip install git+ssh://git@github.com/django-ftl/python-fluent.git@implement_format
-
-Features
---------
-
-* TODO - none yet
-
-
-Running Tests
--------------
-
-Does the code actually work?
-
-::
-
-    source <YOURVIRTUALENV>/bin/activate
-    (myenv) $ pip install tox
-    (myenv) $ tox
 
 
 Credits

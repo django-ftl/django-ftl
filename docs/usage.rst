@@ -12,15 +12,23 @@ To use django-ftl in a project, add it to your `INSTALLED_APPS`:
         ...
     )
 
-Add django-ftl's URL patterns:
+This is necessary for use of the template tags.
 
-.. code-block:: python
-
-    from django_ftl import urls as django_ftl_urls
+You will also probably want to add some middleware for activating languages. TODO
 
 
-    urlpatterns = [
-        ...
-        url(r'^', include(django_ftl_urls)),
-        ...
-    ]
+FTL files and layout
+--------------------
+
+TODO
+
+
+Bundles
+-------
+
+TODO
+
+Template tags
+-------------
+
+TODO
