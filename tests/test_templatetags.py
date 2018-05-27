@@ -8,7 +8,9 @@ from django_ftl import activate_locale
 from django_ftl.bundle import Bundle
 
 
-main_bundle = Bundle(['tests/main.ftl'], fallback_locale='en')
+main_bundle = Bundle(['tests/main.ftl'],
+                     use_isolating=False,
+                     fallback_locale='en')
 
 
 class TestFtlTag(TestCase):

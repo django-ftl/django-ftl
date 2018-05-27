@@ -91,15 +91,20 @@ class Bundle(object):
     def __init__(self, paths,
                  finder=default_finder,
                  fallback_locale=None,
+                 use_isolating=True,
                  activator=activator):
         self._paths = paths
         self._finder = finder
         self._loaded = False
         self._all_message_contexts = {}  # dict from locale to MessageContext
         self._fallback_locale = fallback_locale
+        self._use_isolating = use_isolating
 
         self.current_locale = activator.get_current_value()
         activator.locale_changed.connect(self.locale_changed_receiver)
+
+    def _make_message_context(self, locale):
+        return MessageContext([locale], use_isolating=self._use_isolating)
 
     @property
     def current_locale(self):
@@ -143,7 +148,7 @@ class Bundle(object):
                 if context is not None:
                     contexts.append(context)
             except KeyError:
-                context = MessageContext([locale])
+                context = self._make_message_context(locale)
 
                 for path in self._paths:
                     try:
