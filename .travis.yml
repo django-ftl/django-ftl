@@ -2,26 +2,16 @@
 
 language: python
 
+sudo: false
+language: python
 python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
   - "3.6"
+env:
+  - DJANGO="1.11"
+  - DJANGO="2.0"
 
-env: 
-  - TOX_ENV=py36-django-111
-  - TOX_ENV=py35-django-111
-  - TOX_ENV=py34-django-111
-  - TOX_ENV=py27-django-111
-  - TOX_ENV=py36-django-20
-  - TOX_ENV=py35-django-20
-  - TOX_ENV=py34-django-20
-
-matrix:
-  fast_finish: true
-
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -r requirements_test.txt
-
-# command to run tests using coverage, e.g. python setup.py test
-script: tox -e $TOX_ENV
-
-after_success:
-  - codecov -e TOX_ENV
+install: pip install tox tox-travis
+script: tox
