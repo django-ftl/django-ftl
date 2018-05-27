@@ -57,7 +57,17 @@ class TestFtlConfTag(TestCase):
     def test_good(self):
         t = Template("""
         {% load ftl %}
-        {% ftl_conf 'server' 'tests.test_templatetags.main_bundle' %}
+        {% ftl_conf mode='server' bundle='tests.test_templatetags.main_bundle' %}
+        {% ftl_message 'simple' %}
+        """)
+        self.assertEqual(t.render(Context({})).strip(),
+                         "Simple")
+
+    def test_good_split(self):
+        t = Template("""
+        {% load ftl %}
+        {% ftl_conf mode='server' %}
+        {% ftl_conf bundle='tests.test_templatetags.main_bundle' %}
         {% ftl_message 'simple' %}
         """)
         self.assertEqual(t.render(Context({})).strip(),
@@ -66,7 +76,7 @@ class TestFtlConfTag(TestCase):
     def test_missing(self):
         t = Template("""
         {% load ftl %}
-        {% ftl_conf 'server' 'tests.test_templatetags.main_bundle' %}
+        {% ftl_conf mode='server' bundle='tests.test_templatetags.main_bundle' %}
         {% ftl_message 'missing-message' %}
         """)
         self.assertEqual(t.render(Context({})).strip(),
@@ -75,7 +85,7 @@ class TestFtlConfTag(TestCase):
     def test_args(self):
         t = Template("""
         {% load ftl %}
-        {% ftl_conf 'server' 'tests.test_templatetags.main_bundle' %}
+        {% ftl_conf mode='server' bundle='tests.test_templatetags.main_bundle' %}
         {% ftl_message 'with-argument' user=user %}
         """)
         self.assertEqual(t.render(Context({'user': 'Mary'})).strip(),
@@ -84,7 +94,7 @@ class TestFtlConfTag(TestCase):
     def test_xss(self):
         t = Template("""
         {% load ftl %}
-        {% ftl_conf 'server' 'tests.test_templatetags.main_bundle' %}
+        {% ftl_conf mode='server' bundle='tests.test_templatetags.main_bundle' %}
         {% ftl_message 'with-argument' user=user %}
         """)
         self.assertEqual(t.render(Context({'user': 'Mary & Jane'})).strip(),
