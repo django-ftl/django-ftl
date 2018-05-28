@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 from django.test import TestCase
 
 from django_ftl import activate_locale, deactivate_locale
-from django_ftl.bundle import Bundle, NoLocaleSet
+from django_ftl.bundles import Bundle, NoLocaleSet
 
 
 class TestBundles(TestCase):

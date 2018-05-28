@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.template import Template, Context
 
 from django_ftl import activate_locale
-from django_ftl.bundle import Bundle
+from django_ftl.bundles import Bundle
 
 
 main_bundle = Bundle(['tests/main.ftl'],
