@@ -11,18 +11,15 @@ django-ftl
 .. image:: https://codecov.io/gh/django-ftl/django-ftl/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/django-ftl/django-ftl
 
-Django bindings for `Fluent <https://projectfluent.org/>`_, a localization
-system for today's world.
+django-ftl is a Django package for using for `Fluent <https://projectfluent.org/>`_, a
+localization system for today's world.
 
 This package builds upon the `Python implementation of Fluent
 <https://github.com/projectfluent/python-fluent>`_ and provides:
 
-* A more opinionated way to set up and manage your ``.ftl`` files
-* Integration into Django templates
-
-
-CURRENT STATUS: Minimal functionality implemented (bundles and template tags),
-but no docs yet.
+* A structure for setting up and managing your ``.ftl`` files.
+* Methods for switching/setting the current language.
+* Integration into Django templates.
 
 
 Why would I use this?
@@ -32,7 +29,7 @@ The defacto standard in Django world is GNU Gettext. See this `Fluent vs gettext
 <https://github.com/projectfluent/fluent/wiki/Fluent-vs-gettext>`_ page for a
 comparison. In brief, here are some advantages:
 
-* Fluent makes concerns like plural rules the job of the translator
+* Fluent makes concerns like plural rules the job of the translator.
 
 * Fluent gives translators the power to obey language specific rules
   (gender, case, plurals) that the developer may not be aware of,
@@ -53,8 +50,8 @@ rules (that is, the fact that there are two variants in English), as per the
 .. code-block:: python
 
    msg = ngettext(
-        'there is %(count)d object',
-        'there are %(count)d objects',
+        'there is %(count)d object.',
+        'there are %(count)d objects.',
     count) % {
         'count': count,
     }
@@ -66,42 +63,36 @@ instead of "there are 0 objects".
 In Fluent, plural rules are one example of a more generic mechanism for
 selecting variants, and the translator is in control. The equivalent with
 fluent/django-ftl, with special handling of the zero case included, looks like
-this:
+this in an English ``.ftl`` file:
 
-
-English ``main.ftl`` file::
+::
 
   there-are-some-objects = { $count ->
-      [0]     There are no objects
-      [1]     There is one object
-      [other] There are { $count } objects
+      [0]     There are no objects.
+      [1]     There is one object.
+      [other] There are { $count } objects.
    }
 
+The Python code referencing this will only need to use the ID
+(``there-are-some-objects``) and pass the ``$count`` argument.
 
-Python code:
-
-.. code-block:: python
-
-   # Setup:
-   bundle = Bundle(['main.ftl'])
-   activate_locale('en')
-
-   # Usage:
-   msg = bundle.format('there-are-some-objects', {'count': count})
-
-
-Or Django template code:
-
-.. code-block:: html+django
-
-   {% ftl-message 'there-are-some-objects' count=count %}
-
+Another problem that comes up is gender - for example, in French adjectives must
+agree in gender with the person being described. This can be solved in Fluent by
+passing the gender of the person as an argument, and allowing the translator to
+use the variant mechanism to write the correct language. This contrasts with GNU
+Gettext where the developer would have to create separate message strings for
+each case, because the message format is not powerful enough to allow the
+translator to add variant selection. Also, these different message strings will
+be identical in languages which don't have that feature — in other words, the
+grammatical features of all languages end up having a disproportionate affect on
+the source and on other developers.
 
 
 Documentation
 -------------
 
-The full documentation is at https://django-ftl.readthedocs.io.
+The documentation for how to use django-ftl is in the docs/folder and online at
+https://django-ftl.readthedocs.io.
 
 
 Credits
