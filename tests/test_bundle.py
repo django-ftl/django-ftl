@@ -39,7 +39,26 @@ class TestBundles(TestCase):
         bundle = Bundle(['tests/main.ftl'], fallback_locale='en')
         self.assertEqual(bundle.format('missing-from-all'), "???")
 
-        # TODO - check caches are actually working
+    def test_locale_matching_case_insensitive(self):
+        activate_locale('fr-fr')
+        bundle = Bundle(['tests/main.ftl'])
+        self.assertEqual(bundle.format('simple'), 'Facile')
+
+        activate_locale('EN')
+        bundle = Bundle(['tests/main.ftl'])
+        self.assertEqual(bundle.format('simple'), 'Simple')
+
+    def test_handle_underscores_in_locale_name(self):
+        activate_locale('fr_FR')
+        bundle = Bundle(['tests/main.ftl'])
+        self.assertEqual(bundle.format('simple'), 'Facile')
+
+    def test_normalization_for_fallback_locale(self):
+        activate_locale('zh')
+        bundle = Bundle(['tests/main.ftl'], fallback_locale='EN')
+        self.assertEqual(bundle.format('simple'), 'Simple')
+
+    # TODO - check caches are actually working
 
     # TODO fallbacks - manual and auto
 

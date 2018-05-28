@@ -6,6 +6,7 @@ import logging
 
 from django.dispatch import Signal
 from django.utils.functional import cached_property
+from django.utils import lru_cache
 from fluent.context import MessageContext
 
 _active_locale = local()
@@ -40,10 +41,17 @@ class MessageFinderBase(object):
         raise NotImplementedError()
 
     def load(self, locale, path):
+        locale = normalize_bcp47(locale)
         all_bases = self.locale_base_dirs
         tried = []
         for i, base in enumerate(all_bases):
-            full_path = os.path.join(base, locale, path)
+            try:
+                locale_dir = locale_dirs_at_path(base)[locale]
+            except KeyError:
+                tried.append(base + "/")
+                continue
+
+            full_path = os.path.join(locale_dir, path)
             try:
                 with open(full_path, "rb") as f:
                     return f.read().decode('utf-8')
@@ -53,6 +61,21 @@ class MessageFinderBase(object):
         raise FileNotFoundError("Could not find locate FTL file {0}/{1}. Tried: {2}"
                                 .format(locale, path,
                                         ", ".join(tried)))
+
+
+def normalize_bcp47(locale):
+    return locale.lower().replace('_', '-')
+
+
+@lru_cache.lru_cache(maxsize=None)
+def locale_dirs_at_path(base):
+    dirs_found = [p for p in
+                  [os.path.join(base, e) for e in os.listdir(base)]
+                  if os.path.isdir(p)]
+
+    # Apply normalization and return mapping from locale nane to directory.
+    return {normalize_bcp47(os.path.basename(p)): p
+            for p in dirs_found}
 
 
 class DjangoMessageFinder(MessageFinderBase):
