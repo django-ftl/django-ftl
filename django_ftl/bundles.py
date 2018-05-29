@@ -116,6 +116,7 @@ class Bundle(object):
                  finder=default_finder,
                  fallback_locale=None,
                  use_isolating=True,
+                 require_activate=True,
                  activator=activator):
         self._paths = paths
         self._finder = finder
@@ -123,6 +124,10 @@ class Bundle(object):
         self._all_message_contexts = {}  # dict from locale to MessageContext
         self._fallback_locale = fallback_locale
         self._use_isolating = use_isolating
+        self._require_activate = require_activate
+
+        if not require_activate and fallback_locale is None:
+            raise ValueError("If require_activate=False is passed, fallback_locale must be passed")
 
         self.current_locale = activator.get_current_value()
         activator.locale_changed.connect(self.locale_changed_receiver)
@@ -156,9 +161,11 @@ class Bundle(object):
 
         current_locale = self.current_locale
         if current_locale is None:
-            raise NoLocaleSet("Bundle.current_locale must be set "
-                              "(or passed as 'default_locale' to the constructor) "
-                              "before using Bundle.format")
+            if self._require_activate:
+                raise NoLocaleSet("Bundle.current_locale must be set before using Bundle.format "
+                                  "- or, use Bundle(require_activate=False)")
+            else:
+                current_locale = self._fallback_locale
 
         to_try = list(locale_lookups(current_locale))
         if self._fallback_locale is not None:

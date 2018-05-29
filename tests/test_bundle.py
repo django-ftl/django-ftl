@@ -14,8 +14,23 @@ class TestBundles(TestCase):
 
     def test_no_locale(self):
         bundle = Bundle(['tests/main.ftl'])
+        self.assertRaises(NoLocaleSet, bundle.format, 'simple')
 
-        self.assertRaises(NoLocaleSet, bundle.format, 'a-message-id')
+    def test_no_locale_with_fallback_set(self):
+        bundle = Bundle(['tests/main.ftl'], fallback_locale='en')
+        self.assertRaises(NoLocaleSet, bundle.format, 'simple')
+
+    def test_no_locale_with_require_activate_false(self):
+        bundle = Bundle(['tests/main.ftl'],
+                        fallback_locale='en',
+                        require_activate=False)
+        self.assertEqual(bundle.format('simple'), 'Simple')
+
+    def test_require_activate_false_and_no_fallback(self):
+        self.assertRaises(ValueError,
+                          Bundle,
+                          ['tests/main.ftl'],
+                          require_activate=False)
 
     def test_find_messages(self):
         bundle = Bundle(['tests/main.ftl'])
