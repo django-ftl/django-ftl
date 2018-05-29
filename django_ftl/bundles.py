@@ -1,12 +1,13 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-import os
-from threading import local
 import logging
+import os
+from collections import OrderedDict
+from threading import local
 
 from django.dispatch import Signal
-from django.utils.functional import cached_property
 from django.utils import lru_cache
+from django.utils.functional import cached_property
 from fluent.context import MessageContext
 
 _active_locale = local()
@@ -159,27 +160,28 @@ class Bundle(object):
                               "(or passed as 'default_locale' to the constructor) "
                               "before using Bundle.format")
 
-        to_try = [current_locale]
+        to_try = list(locale_lookups(current_locale))
         if self._fallback_locale is not None:
             to_try.append(self._fallback_locale)
 
         contexts = []
         for i, locale in enumerate(to_try):
-            last_item = i == len(to_try)
+            last_chance = i == len(to_try) - 1
             try:
                 context = self._all_message_contexts[locale]
                 if context is not None:
                     contexts.append(context)
             except KeyError:
+                # Create the MessageContext on demand
                 context = self._make_message_context(locale)
 
                 for path in self._paths:
                     try:
                         contents = self._finder.load(locale, path)
                     except FileNotFoundError:
-                        if last_item:
-                            # Can't find any FTL with the name, we want to bail
-                            # early and alert developer.
+                        if last_chance and len(contexts) == 0:
+                            # Can't find any FTL with the specified filename, we
+                            # want to bail early and alert developer.
                             raise
                         else:
                             # Allow it, because we will use later ones as fallbacks.
@@ -220,3 +222,32 @@ class Bundle(object):
                          message_id,
                          args,
                          repr(exception))
+
+
+def locale_lookups(locale):
+    """
+    Utility for implementing RFC 4647 lookup algorithm
+    """
+    if ',' in locale:
+        locales = [l.strip() for l in locale.split(",")]
+        return uniquify(sum(map(locale_lookups, locales), []))
+
+    parts = locale.split('-')
+    locales = []
+    current = None
+    for p in parts:
+        if current is None:
+            current = p
+            locales.append(current)
+        else:
+            current = current + "-" + p
+            if len(p) == 1:
+                # Skip single letter/digit bits
+                continue
+            locales.append(current)
+
+    return list(reversed(locales))
+
+
+def uniquify(l):
+    return list(OrderedDict.fromkeys(l))
