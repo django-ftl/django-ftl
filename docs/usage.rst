@@ -225,6 +225,7 @@ it as a user preference.
 Django has a built-in ``set_language`` view that you can use with django-ftl -
 see the `set_language docs
 <https://docs.djangoproject.com/en/2.0/topics/i18n/translation/#the-set-language-redirect-view>`_.
-This saves language preference in a cookie, which you can then use later in a
-middleware, for example. This is designed to work with Django's built-in i18n
-solution but works just as well with django-ftl.
+This saves language preference in the session (or a cookie if you are not using
+the session), which you can then use later in a middleware, for example. This is
+designed to work with Django's built-in i18n solution but works just as well
+with django-ftl.

@@ -60,3 +60,5 @@
 
       The arguments passed in may also be strings or numbers that are used to
       select variants.
+
+      TODO - Error handling
