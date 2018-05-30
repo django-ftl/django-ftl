@@ -3,9 +3,10 @@ Usage
 =====
 
 
-Using Fluent in a Django project requires understanding a number of things, in
-addition to understanding the `Fluent syntax
-<http://projectfluent.org/fluent/guide/>`_. This guide outlines the main steps.
+Using Fluent in a Django project requires understanding a number of concepts and
+APIs, in addition to understanding the `Fluent syntax
+<http://projectfluent.org/fluent/guide/>`_. This guide outlines the main things
+you need.
 
 
 FTL files and layout
@@ -13,14 +14,15 @@ FTL files and layout
 
 Fluent translations are placed in Fluent Translation List files, with suffix
 ``.ftl``. For them to be found by django-ftl, you need to use the following
-conventions, which align with the convention used across tools that use Fluent.
+conventions, which align with the conventions used across other tools that use
+Fluent (such as Pontoon).
 
 For the sake of this tutorial, we will assume you are writing a Django app
 (reusable or non-reusable) called ``myapp`` - that is, it forms a Python
 top-level module/package called ``myapp``. You will need to replace ``myapp``
 with the actual name of your app.
 
-You will need your directory layout to include the following::
+You will need your directory layout to match the following example::
 
    myapp/
      __init__.py
@@ -29,7 +31,7 @@ You will need your directory layout to include the following::
        en/
          myapp/
              main.ftl
-       de
+       de/
          myapp/
              main.ftl
 
@@ -44,8 +46,8 @@ That is:
   locale name. The example above shows English and German. Locale names should
   be in `BCP 47 format <https://tools.ietf.org/html/bcp47>`_.
 
-  It is recommended that you use the capitalisation convention recommended by
-  BCP47, which is:
+* It is recommended that you follow the capitalisation convention in BCP47,
+  which is:
 
   * Lower case for the language code
   * Title case for script code
@@ -56,12 +58,12 @@ That is:
   django-ftl does not enforce this convention - it will find locale files if
   different capitalisation is used. However, if multiple directories exist for
   the same locale, differing only by case (e.g. ``EN-US`` and ``en-US``), and
-  their contents are not the same, then your FTL files will likely not be found
-  correctly.
+  their contents are not the same, then your FTL files will probably not be
+  found correctly.
 
   Finally, django-ftl will also find the FTL files if you name the directories
   in Unix convention with underscores e.g. ``en_GB``, although for the sake of
-  consistency this is also not recommended.
+  consistency and other tools this is also not recommended.
 
 * Within each specific locale directory, create another directory with the name
   of your app. This is necessary to give a separate namespace for your FTL
@@ -101,11 +103,12 @@ different pages or components in your app.
 Bundles
 -------
 
-To use ``.ftl`` files with django-ftl, you must first define a Bundle. They
-define a collection of ``.ftl`` files that you want to use, and are responsible
-for finding and loading these files. The definition of a Bundle can go anywhere
-in your project, but by convention we should create a ``ftl_bundles.py`` inside
-your Python ``myapp`` package, i.e. a ``myapp.ftl_bundles`` module.
+To use ``.ftl`` files with django-ftl, you must first define a
+:class:`~django_ftl.bundles.Bundle`. They represent a collection of ``.ftl``
+files that you want to use, and are responsible for finding and loading these
+files. The definition of a ``Bundle`` can go anywhere in your project, but by
+convention you should create a ``ftl_bundles.py`` inside your Python ``myapp``
+package, i.e. a ``myapp.ftl_bundles`` module.
 
 Our ``ftl_bundles.py`` will look like this:
 
@@ -115,8 +118,8 @@ Our ``ftl_bundles.py`` will look like this:
 
    main = Bundle(['myapp/main.ftl'])
 
-:class:`~django_ftl.bundles.Bundle` takes a single positional argument which is
-a list of FTL files. See API docs for other arguments.
+:class:`~django_ftl.bundles.Bundle` takes a single required positional argument
+which is a list of FTL files. See API docs for other arguments.
 
 
 Activating a language
@@ -141,7 +144,9 @@ Normally it will come from a list of options that you have given to a user (see
 :ref:`setting-user-language` below).
 
 As soon as you activate a language, all ``Bundle`` objects will switch to using
-that language. By default they will use your ``LANGUAGE
+that language. (Before activating, by default they will use your
+``LANGUAGE_CODE`` setting as a default, and this is also used as a fallback in
+the case of missing FTL files or messages).
 
 Using middleware
 ~~~~~~~~~~~~~~~~
@@ -175,9 +180,9 @@ activates that language.
 
 Instead of these two, you could also use
 ``"django_ftl.middleware.activate_from_request_session"`` by adding it to your
-MIDDLEWARE, after the session middleware. This middleware looks for a language
-set in ``request.session``, as set by the ``set_language`` view that Django
-provides.
+``MIDDLEWARE``, after the session middleware. This middleware looks for a
+language set in ``request.session``, as set by the ``set_language`` view that
+Django provides.
 
 
 Outside of the request-response cycle
