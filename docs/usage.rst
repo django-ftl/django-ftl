@@ -59,9 +59,9 @@ That is:
   their contents are not the same, then your FTL files will likely not be found
   correctly.
 
-  django-ftl will also find the FTL files if you name the directories in Unix
-  convention with underscores e.g. ``en_GB``, although this is also not
-  recommended.
+  Finally, django-ftl will also find the FTL files if you name the directories
+  in Unix convention with underscores e.g. ``en_GB``, although for the sake of
+  consistency this is also not recommended.
 
 * Within each specific locale directory, create another directory with the name
   of your app. This is necessary to give a separate namespace for your FTL
@@ -77,33 +77,35 @@ That is:
 
 
 The contents of these files must be valid Fluent syntax. For the sake of this
-guide, we will assume ``myapp`` has a page which greets the user, and informs
-them how many new events have happened on the site since their last visit.
-It might have an English ``myapp/main.ftl`` file that looks like this::
+guide, we will assume ``myapp`` has an 'events' page which greets the user, and
+informs them how many new events have happened on the site since their last
+visit. It might have an English ``myapp/main.ftl`` file that looks like this::
 
-  title = MyApp!
+  events-title = MyApp Events!
 
-  greeting = Hello, { $username }
+  events-greeting = Hello, { $username }
 
-  new-events-info = { $count ->
+  events-new-events-info = { $count ->
       [0]     There have been no new events since your last event.
       [1]     There has been one new event since your last visit.
      *[other] There have been { $count } new events since your last visit.
    }
 
-In this ``.ftl`` file, ``title``, ``greeting`` and ``new-events-info`` are
-Fluent message IDs.
+In this ``.ftl`` file, ``events-title``, ``events-greeting`` and
+``events-new-events-info`` are Fluent message IDs. Note that we have used
+``events-`` as a adhoc namespace for this 'events' page, to avoid name clashes
+with other messages from our app. It's recommended to use a prefix like this for
+different pages or components in your app.
 
 
 Bundles
 -------
 
 To use ``.ftl`` files with django-ftl, you must first define a Bundle. They
-defines a collection of ``.ftl`` files that you want to use, and are responsible
+define a collection of ``.ftl`` files that you want to use, and are responsible
 for finding and loading these files. The definition of a Bundle can go anywhere
-in your project, but by convention we will assume you create a
-``ftl_bundles.py`` inside your Python ``myapp`` package, i.e.
-``myapp.ftl_bundles``.
+in your project, but by convention we should create a ``ftl_bundles.py`` inside
+your Python ``myapp`` package, i.e. a ``myapp.ftl_bundles`` module.
 
 Our ``ftl_bundles.py`` will look like this:
 
@@ -111,19 +113,10 @@ Our ``ftl_bundles.py`` will look like this:
 
    from django_ftl.bundles import Bundle
 
-   main = Bundle(['myapp/main.ftl'],
-                 fallback_locale='en')
+   main = Bundle(['myapp/main.ftl'])
 
-:class:`~django_ftl.bundles.Bundle` takes a single positional argument which is a list of FTL files. The
-files will be added to the bundle in the order specified, in a single namespace,
-so you should ensure that the message IDs in the files are unique across the
-bundle. If they are not, messages with duplicate message IDs from files that are
-specified later will overwrite the ones earlier in the list. (This can be useful
-to allow you to use FTL files from another app and replace some of their
-messages with your own).
-
-:class:`~django_ftl.bundles.Bundle` also takes some optional keyword arguments
-described in the API docs.
+:class:`~django_ftl.bundles.Bundle` takes a single positional argument which is
+a list of FTL files. See API docs for other arguments.
 
 
 Activating a language

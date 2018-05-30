@@ -1,10 +1,9 @@
-from __future__ import absolute_import, unicode_literals, print_function
+from __future__ import absolute_import, print_function, unicode_literals
 
-
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from django_ftl import activate_locale, deactivate_locale
-from django_ftl.bundles import Bundle, NoLocaleSet, FileNotFoundError, locale_lookups
+from django_ftl.bundles import Bundle, FileNotFoundError, NoLocaleSet, locale_lookups
 
 
 class TestBundles(TestCase):
@@ -12,25 +11,41 @@ class TestBundles(TestCase):
     def setUp(self):
         deactivate_locale()
 
-    def test_no_locale(self):
-        bundle = Bundle(['tests/main.ftl'])
+    def test_no_locale_set_with_require_activate(self):
+        bundle = Bundle(['tests/main.ftl'], require_activate=True)
         self.assertRaises(NoLocaleSet, bundle.format, 'simple')
 
-    def test_no_locale_with_fallback_set(self):
-        bundle = Bundle(['tests/main.ftl'], fallback_locale='en')
+    def test_require_activate_after_activate(self):
+        bundle = Bundle(['tests/main.ftl'], require_activate=True)
+        activate_locale('en')
+        self.assertEqual(bundle.format('simple'), 'Simple')
+        deactivate_locale()
         self.assertRaises(NoLocaleSet, bundle.format, 'simple')
 
-    def test_no_locale_with_require_activate_false(self):
+    def test_no_locale_set_with_default_set(self):
+        bundle = Bundle(['tests/main.ftl'], require_activate=True, default_locale='en')
+        self.assertRaises(NoLocaleSet, bundle.format, 'simple')
+
+    def test_no_locale_set_with_good_default(self):
         bundle = Bundle(['tests/main.ftl'],
-                        fallback_locale='en',
-                        require_activate=False)
+                        default_locale='en')
         self.assertEqual(bundle.format('simple'), 'Simple')
 
-    def test_require_activate_false_and_no_fallback(self):
-        self.assertRaises(ValueError,
-                          Bundle,
-                          ['tests/main.ftl'],
-                          require_activate=False)
+    @override_settings(FTL={'LANGUAGE_CODE': 'en'})
+    def test_no_locale_set_with_good_default_from_settings(self):
+        bundle = Bundle(['tests/main.ftl'])
+        self.assertEqual(bundle.format('simple'), 'Simple')
+
+    @override_settings(FTL={'LANGUAGE_CODE': 'zh'})
+    def test_no_locale_set_with_missing_default(self):
+        bundle = Bundle(['tests/main.ftl'])
+        self.assertRaises(FileNotFoundError, bundle.format, 'simple')
+
+    def test_default_locale_lazy(self):
+        # Ensure that bundle is retrieving LANGUAGE_CODE lazily
+        bundle = Bundle(['tests/main.ftl'])
+        with override_settings(LANGUAGE_CODE='fr-FR'):
+            self.assertEqual(bundle.format('simple'), 'Facile')
 
     def test_find_messages(self):
         bundle = Bundle(['tests/main.ftl'])
@@ -46,12 +61,12 @@ class TestBundles(TestCase):
 
     def test_fallback(self):
         activate_locale('tr')
-        bundle = Bundle(['tests/main.ftl'], fallback_locale='en')
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
         self.assertEqual(bundle.format('missing-from-others'), "Missing from others")
 
     def test_missing(self):
         activate_locale('en')
-        bundle = Bundle(['tests/main.ftl'], fallback_locale='en')
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
         self.assertEqual(bundle.format('missing-from-all'), "???")
 
     def test_locale_matching_case_insensitive(self):
@@ -68,9 +83,9 @@ class TestBundles(TestCase):
         bundle = Bundle(['tests/main.ftl'])
         self.assertEqual(bundle.format('simple'), 'Facile')
 
-    def test_normalization_for_fallback_locale(self):
+    def test_locale_matching_for_default_locale(self):
         activate_locale('zh')
-        bundle = Bundle(['tests/main.ftl'], fallback_locale='EN')
+        bundle = Bundle(['tests/main.ftl'], default_locale='EN')  # 'EN' not 'en'
         self.assertEqual(bundle.format('simple'), 'Simple')
 
     def test_locale_range_lookup(self):

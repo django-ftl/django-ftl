@@ -10,7 +10,7 @@ from django_ftl.bundles import Bundle
 
 main_bundle = Bundle(['tests/main.ftl'],
                      use_isolating=False,
-                     fallback_locale='en')
+                     default_locale='en')
 
 
 class TestFtlTag(TestCase):
