@@ -1,9 +1,12 @@
+====================
+ django_ftl.bundles
+====================
+
 .. currentmodule:: django_ftl.bundles
 
+.. class:: Bundle(files, default_locale=None, require_activate=False)
 
-.. class:: Bundle(files, default_locale=None, require_activate=False
-
-   Create a bundle from a list of files
+   Create a bundle from a list of files.
 
    :param files list(str):
 
@@ -35,3 +38,25 @@
       :meth:`format` will raise an exception if you attempt to use it without
       first activating a language. This can be helpful to ensure that all code
       paths that use Bundles are setting a language first.
+
+
+   .. method:: format(message_id, args=None)
+
+      Generate a translation of the message specified by the message ID,
+      in the currently activated locale.
+
+      ``args`` is an optional dictionary of parameters for the message. These
+      will normally be:
+
+      * strings
+      * integers or floating point numbers (which will be formatted according to
+        locale rules)
+      * datetime objects (which will be formatted according to locale rules)
+
+      To specify or partially specify your own formatting choices for numbers
+      and datetime objects, see the python-fluent docs for
+      ``fluent.types.fluent_number`` and ``fluent.types.fluent_datetime``.
+      (TODO LINK)
+
+      The arguments passed in may also be strings or numbers that are used to
+      select variants.
