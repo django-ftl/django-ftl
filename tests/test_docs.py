@@ -1,0 +1,21 @@
+from __future__ import absolute_import, print_function, unicode_literals
+
+from django.test import TestCase
+
+from django_ftl import activate_locale
+from django_ftl.bundles import Bundle
+
+
+ftl_bundle = Bundle(['tests/docs.ftl'])
+
+
+class TestDocs(TestCase):
+
+    def test_usage_docs(self):
+        # These tests parallel the code in the usage.rst docs
+        activate_locale('en')
+        title = ftl_bundle.format('events-title')
+        self.assertEqual(title, 'MyApp Events!')
+
+        greeting = ftl_bundle.format('events-greeting', {'username': 'boaty mcboatface'})
+        self.assertEqual(greeting, 'Hello, ⁨boaty mcboatface⁩')

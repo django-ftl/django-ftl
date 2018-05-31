@@ -8,6 +8,8 @@ APIs, in addition to understanding the `Fluent syntax
 <http://projectfluent.org/fluent/guide/>`_. This guide outlines the main things
 you need.
 
+TODO locale/language terminology
+
 
 FTL files and layout
 --------------------
@@ -81,17 +83,10 @@ That is:
 The contents of these files must be valid Fluent syntax. For the sake of this
 guide, we will assume ``myapp`` has an 'events' page which greets the user, and
 informs them how many new events have happened on the site since their last
-visit. It might have an English ``myapp/main.ftl`` file that looks like this::
+visit. It might have an English ``myapp/main.ftl`` file that looks like this:
 
-  events-title = MyApp Events!
-
-  events-greeting = Hello, { $username }
-
-  events-new-events-info = { $count ->
-      [0]     There have been no new events since your last event.
-      [1]     There has been one new event since your last visit.
-     *[other] There have been { $count } new events since your last visit.
-   }
+.. literalinclude:: ../tests/locales/en/tests/docs.ftl
+   :language: ftl
 
 In this ``.ftl`` file, ``events-title``, ``events-greeting`` and
 ``events-new-events-info`` are Fluent message IDs. Note that we have used
@@ -107,10 +102,10 @@ To use ``.ftl`` files with django-ftl, you must first define a
 :class:`~django_ftl.bundles.Bundle`. They represent a collection of ``.ftl``
 files that you want to use, and are responsible for finding and loading these
 files. The definition of a ``Bundle`` can go anywhere in your project, but by
-convention you should create a ``ftl_bundles.py`` inside your Python ``myapp``
-package, i.e. a ``myapp.ftl_bundles`` module.
+convention you should create a ``ftl_bundles.py`` file inside your Python
+``myapp`` package, i.e. a ``myapp.ftl_bundles`` module.
 
-Our ``ftl_bundles.py`` will look like this:
+Our ``ftl_bundles.py`` file will look like this:
 
 .. code-block:: python
 
@@ -118,12 +113,13 @@ Our ``ftl_bundles.py`` will look like this:
 
    main = Bundle(['myapp/main.ftl'])
 
-:class:`~django_ftl.bundles.Bundle` takes a single required positional argument
-which is a list of FTL files. See API docs for other arguments.
+``Bundle`` takes a single required positional argument
+which is a list of FTL files. See :class:`~django_ftl.bundles.Bundle` API docs
+for other arguments.
 
 
-Activating a language
----------------------
+Activating a locale/language
+----------------------------
 
 The most direct way to activate a specific language/locale is use
 :func:`django_ftl.activate_locale`:
@@ -132,7 +128,7 @@ The most direct way to activate a specific language/locale is use
 
    from django_ftl import activate_locale
 
-   activate_language("en-US")
+   activate_locale("en-US")
 
 The argument can be any BCP 47 locale tag, or a "language priority list"
 (a prioritised, comma separated list of locale tags). For example::
@@ -144,9 +140,9 @@ Normally it will come from a list of options that you have given to a user (see
 :ref:`setting-user-language` below).
 
 As soon as you activate a language, all ``Bundle`` objects will switch to using
-that language. (Before activating, by default they will use your
-``LANGUAGE_CODE`` setting as a default, and this is also used as a fallback in
-the case of missing FTL files or messages).
+that language. (Before activating, they will use your ``LANGUAGE_CODE`` setting
+as a default, and this is also used as a fallback in the case of missing FTL
+files or messages).
 
 Using middleware
 ~~~~~~~~~~~~~~~~
@@ -157,8 +153,7 @@ solution previously, or are still using it for some parts of your app, you may
 also be using `django.middleware.locale.LocaleMiddleware
 <https://docs.djangoproject.com/en/2.0/ref/middleware/#django.middleware.locale.LocaleMiddleware>`_.
 
-The way you choose to activate a given language will therefore depend on your
-exact setup.
+The way you choose to activate a given language will depend on your exact setup.
 
 If you are already using ``django.middleware.locale.LocaleMiddleware``, and want
 to continue using it, the easiest solution is to add
@@ -204,8 +199,22 @@ Once you have determined the locale to use, use
 Using bundles from Python
 -------------------------
 
-TODO
+After you have activated a locale, to obtain a translation you call the
+``Bundle`` :meth:`~django_ftl.bundles.Bundle.format` method, passing in a
+message ID and an optional dictionary of arguments:
 
+.. code-block:: python
+
+   >>> from myapp.ftl_bundles import main as ftl_bundle
+   >>> ftl_bundle.format('events-title')
+   'MyApp Events!'
+
+   >>> ftl_bundle.format('events-greeting', {'username': 'boaty mcboatface'})
+   'Hello, ⁨boaty mcboatface⁩'
+
+That's it for the basic case. See :meth:`~django_ftl.bundles.Bundle.format` for
+further info about passing numbers and datetimes, and about how errors are
+handled.
 
 Using bundles from Django templates
 -----------------------------------
@@ -236,7 +245,7 @@ it as a user preference.
 Django has a built-in ``set_language`` view that you can use with django-ftl -
 see the `set_language docs
 <https://docs.djangoproject.com/en/2.0/topics/i18n/translation/#the-set-language-redirect-view>`_.
-This saves language preference in the session (or a cookie if you are not using
-the session), which you can then use later in a middleware, for example. This is
-designed to work with Django's built-in i18n solution but works just as well
-with django-ftl.
+(It is designed to work with Django's built-in i18n solution but works just as
+well with django-ftl). It saves a user's language preference into the session
+(or a cookie if you are not using sessions), which you can then use later in a
+middleware or view, for example.
