@@ -188,7 +188,18 @@ Django provides.
 Outside of the request-response cycle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TODO
+For code running outside of the request-response cycle (e.g. cron jobs or
+asynchronous tasks), you will not be able to use middleware, and will need some
+other way to determine the language to use. This might involve:
+
+* a field on a model (e.g. ``User`` class) to store the locale preference.
+* for asynchronous tasks such as Celery, you could pass the locale as an
+  argument. For Celery, signals such as `task-prerun
+  <http://docs.celeryproject.org/en/latest/userguide/signals.html#task-prerun>`_
+  might be useful.
+
+Once you have determined the locale to use, use
+:func:`django_ftl.activate_locale` to activate it.
 
 Using bundles from Python
 -------------------------
