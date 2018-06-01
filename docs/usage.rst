@@ -170,14 +170,14 @@ to continue using it, the easiest solution is to add
    ]
 
 This is a very simple middleware that simply looks at ``request.LANGUAGE_CODE``
-(which has been set by ``ango.middleware.locale.LocaleMiddleware``) and
+(which has been set by ``django.middleware.locale.LocaleMiddleware``) and
 activates that language.
 
 Instead of these two, you could also use
 ``"django_ftl.middleware.activate_from_request_session"`` by adding it to your
-``MIDDLEWARE``, after the session middleware. This middleware looks for a
-language set in ``request.session``, as set by the ``set_language`` view that
-Django provides.
+``MIDDLEWARE`` (somewhere after the session middleware). This middleware looks
+for a language set in ``request.session``, as set by the ``set_language`` view
+that Django provides.
 
 
 Outside of the request-response cycle
@@ -215,6 +215,8 @@ message ID and an optional dictionary of arguments:
 That's it for the basic case. See :meth:`~django_ftl.bundles.Bundle.format` for
 further info about passing numbers and datetimes, and about how errors are
 handled.
+
+TODO - lazy strings
 
 Using bundles from Django templates
 -----------------------------------
