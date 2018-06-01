@@ -210,13 +210,17 @@ message ID and an optional dictionary of arguments:
    'MyApp Events!'
 
    >>> ftl_bundle.format('events-greeting', {'username': 'boaty mcboatface'})
-   'Hello, ⁨boaty mcboatface⁩'
+   'Hello, ⁨\u2068boaty mcboatface\u2069⁩'
+
+TODO - explain unicode bidi chars
 
 That's it for the basic case. See :meth:`~django_ftl.bundles.Bundle.format` for
 further info about passing numbers and datetimes, and about how errors are
 handled.
 
 TODO - lazy strings
+
+TODO - alias the methods
 
 Using bundles from Django templates
 -----------------------------------
