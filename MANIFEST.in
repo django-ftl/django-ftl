@@ -3,4 +3,15 @@ include CONTRIBUTING.rst
 include HISTORY.rst
 include LICENSE
 include README.rst
-recursive-include django_ftl *.html *.png *.gif *js *.css *jpg *jpeg *svg *py
+include tox.ini
+include *.py
+include release.sh
+include requirements*.txt
+include .coveragerc
+include .editorconfig
+recursive-include docs *
+recursive-include src *
+recursive-include tests *
+recursive-include .github *
+prune docs/_build
+global-exclude *.pyc *~

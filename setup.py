@@ -4,10 +4,7 @@ import os
 import re
 import sys
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 
 def get_version(*file_paths):
@@ -21,7 +18,7 @@ def get_version(*file_paths):
     raise RuntimeError('Unable to find version string.')
 
 
-version = get_version("django_ftl", "__init__.py")
+version = get_version("src", "django_ftl", "__init__.py")
 
 
 if sys.argv[-1] == 'publish':
@@ -52,9 +49,8 @@ setup(
     author='Luke Plant',
     author_email='L.Plant.98@cantab.net',
     url='https://github.com/django-ftl/django-ftl',
-    packages=[
-        'django_ftl',
-    ],
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
     include_package_data=True,
     install_requires=[
         'fluent',
