@@ -20,4 +20,4 @@ class TestDocs(TestCase):
         self.assertEqual(title, 'MyApp Events!')
 
         greeting = ftl_bundle.format('events-greeting', {'username': 'boaty mcboatface'})
-        self.assertEqual(greeting, 'Hello, ⁨boaty mcboatface⁩')
+        self.assertEqual(greeting, 'Hello, \u2068boaty mcboatface\u2069')

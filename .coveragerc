@@ -1,11 +1,14 @@
 [run]
 branch = true
+source = django_ftl
 
 [report]
-omit =
-    *site-packages*
-    *tests*
-    *.tox*
 show_missing = True
 exclude_lines =
     raise NotImplementedError
+
+[paths]
+source =
+   src/django_ftl
+   .tox/*/lib/python*/site-packages/django_ftl
+   .tox/pypy*/site-packages/django_ftl
