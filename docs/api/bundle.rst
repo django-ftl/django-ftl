@@ -98,7 +98,8 @@ If a message is missing entirely, for instance, you will get ``'???'`` returned
 from ``Bundle.format`` rather than an exception (but the error will be logged).
 If the message is missing from the requested locale, but available in the
 default locale, the default will be used (but you will still get an error
-logged).
+logged). Therefore, you don't need to add ``try`` / ``except`` around calls to
+``Bundle.format`` to provide a fallback, because that is done for you.
 
 There are some places where django-ftl does throw exceptions, however. These
 include:
@@ -107,9 +108,13 @@ include:
   the default locale, a ``django_ftl.bundles.FileNotFoundError`` exception will
   be raised. It is assumed that such a problem with the default locale is a
   result of a typo, rather than just a locale than has not been fully translated
-  yet, and the developer is warned early.
+  yet, and so the developer is warned early. An empty ``.ftl`` file at the
+  correct path is sufficient to silence this error.
 
 * ``Bundle.format``: If ``require_activate`` is True, this method will raise a
   ``django_ftl.bundles.NoLocaleSet`` exception if you attempt to use it before
   calling ``activate_locale``. This is a deliberate feature to help flush out
   cases where you are using ``format`` before setting a locale.
+
+These are deliberately intended to cause crashes, because you have a developer
+error that should cause failure as early and as loudly as possible.
