@@ -61,4 +61,45 @@
       The arguments passed in may also be strings or numbers that are used to
       select variants.
 
-      TODO - Error handling
+
+Error handling in Bundle
+========================
+
+Fluent's philosophy is that in general, when generating translations, something
+is usually better than nothing, and therefore it attempts to recover as much as
+possible from error conditions. For example, if there are syntax errors in
+``.ftl`` files, it will try to find as many correct messages as possible and
+pass over the incorrect ones. Or, if a message is formatted but it is missing an
+argument, the string ``'???'`` will be used rather than turning the whole
+message into an error of some kind. At the same time, these errors should be
+reported somehow.
+
+django-ftl in general follows the same principle. This means that things like
+missing ``.ftl`` files are tolerated, and most ``Bundle`` methods rarely throw
+exceptions.
+
+Instead, when errors occur they are collected, and are logged. Errors found in
+``.ftl`` message files, or generated at runtime due to bad arguments, for
+example, they will be logged at ``ERROR`` level use the stdlib logging
+framework, to the ``django_ftl.message_errors`` logger. Ensure that these errors
+are visible in your logs, and this should make these problems more visible to
+you.
+
+If a message is missing entirely, for instance, you will get ``'???'`` returned
+from ``Bundle.format`` rather than an exception (but the error will be logged).
+If the message is missing from the requested locale, but available in the
+default, the default will be used (but you will still get an error logged).
+
+There are some places where django-ftl does throw exceptions, however. These
+include:
+
+* ``Bundle.format``: If any of the bundle's specified ``.ftl`` are missing from
+  the default locale, a ``django_ftl.bundles.FileNotFoundError`` exception will
+  be raised. It is assumed that such a problem with the default locale is a
+  result of a typo, rather than just a locale than has not been fully translated
+  yet, and the developer is warned early.
+
+* ``Bundle.format``: If ``require_activate`` is True, this method will raise a
+  ``django_ftl.bundles.NoLocaleSet`` exception if you attempt to use it before
+  calling ``activate_locale``. This is a deliberate feature to help flush out
+  cases where you are using ``format`` before setting a locale.

@@ -181,7 +181,6 @@ class Bundle(object):
 
         contexts = []
         for i, locale in enumerate(to_try):
-            last_chance = i == len(to_try) - 1
             try:
                 context = self._all_message_contexts[locale]
                 if context is not None:
@@ -194,19 +193,15 @@ class Bundle(object):
                     try:
                         contents = self._finder.load(locale, path)
                     except FileNotFoundError:
-                        if last_chance and len(contexts) == 0:
+                        if locale == default_locale:
                             # Can't find any FTL with the specified filename, we
                             # want to bail early and alert developer.
                             raise
-                        else:
-                            # Allow it, because we will use later ones as fallbacks.
-                            # Mark the fact that we failed to find the file,
-                            # to avoid file system lookups next time.
-                            self._all_message_contexts[locale] = None
+                        # Allow missing files otherwise
                     else:
                         context.add_messages(contents)
-                        self._all_message_contexts[locale] = context
-                        contexts.append(context)
+                contexts.append(context)
+                self._all_message_contexts[locale] = context
 
         # Shortcut next time
         self._current_message_contexts = contexts

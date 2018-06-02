@@ -1,3 +1,4 @@
+# -*- coding-utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.test import TestCase, override_settings
@@ -12,18 +13,24 @@ class TestBundles(TestCase):
         deactivate_locale()
 
     def test_no_locale_set_with_require_activate(self):
-        bundle = Bundle(['tests/main.ftl'], require_activate=True)
+        bundle = Bundle(['tests/main.ftl'],
+                        default_locale='en',
+                        require_activate=True)
         self.assertRaises(NoLocaleSet, bundle.format, 'simple')
 
     def test_require_activate_after_activate(self):
-        bundle = Bundle(['tests/main.ftl'], require_activate=True)
+        bundle = Bundle(['tests/main.ftl'],
+                        default_locale='en',
+                        require_activate=True)
         activate_locale('en')
         self.assertEqual(bundle.format('simple'), 'Simple')
         deactivate_locale()
         self.assertRaises(NoLocaleSet, bundle.format, 'simple')
 
     def test_no_locale_set_with_default_set(self):
-        bundle = Bundle(['tests/main.ftl'], require_activate=True, default_locale='en')
+        bundle = Bundle(['tests/main.ftl'],
+                        require_activate=True,
+                        default_locale='en')
         self.assertRaises(NoLocaleSet, bundle.format, 'simple')
 
     def test_no_locale_set_with_good_default(self):
@@ -42,7 +49,8 @@ class TestBundles(TestCase):
         self.assertRaises(FileNotFoundError, bundle.format, 'simple')
 
     def test_default_locale_lazy(self):
-        # Ensure that bundle is retrieving LANGUAGE_CODE lazily
+        # Ensure that bundle is retrieving LANGUAGE_CODE lazily. (The only real
+        # reason for this at the moment is to make testing easier).
         bundle = Bundle(['tests/main.ftl'])
         with override_settings(LANGUAGE_CODE='fr-FR'):
             self.assertEqual(bundle.format('simple'), 'Facile')
@@ -52,12 +60,20 @@ class TestBundles(TestCase):
         activate_locale('en')
         self.assertEqual(bundle.format('simple'), "Simple")
 
+    def test_load_multiple_with_some_missing(self):
+        bundle = Bundle(['tests/only_in_en.ftl',
+                         'tests/main.ftl'],
+                        default_locale='en')
+        activate_locale('fr-FR')
+        self.assertEqual(bundle.format('simple'), "Facile")
+
     def test_switch_locale(self):
-        activate_locale('en')
-        bundle = Bundle(['tests/main.ftl'])
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
         self.assertEqual(bundle.format('simple'), "Simple")
         activate_locale('tr')
         self.assertEqual(bundle.format('simple'), "Basit")
+        deactivate_locale()
+        self.assertEqual(bundle.format('simple'), "Simple")
 
     def test_fallback(self):
         activate_locale('tr')
@@ -71,16 +87,16 @@ class TestBundles(TestCase):
 
     def test_locale_matching_case_insensitive(self):
         activate_locale('fr-fr')
-        bundle = Bundle(['tests/main.ftl'])
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
         self.assertEqual(bundle.format('simple'), 'Facile')
 
         activate_locale('EN')
-        bundle = Bundle(['tests/main.ftl'])
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
         self.assertEqual(bundle.format('simple'), 'Simple')
 
     def test_handle_underscores_in_locale_name(self):
         activate_locale('fr_FR')
-        bundle = Bundle(['tests/main.ftl'])
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
         self.assertEqual(bundle.format('simple'), 'Facile')
 
     def test_locale_matching_for_default_locale(self):
@@ -91,35 +107,59 @@ class TestBundles(TestCase):
     def test_locale_range_lookup(self):
         # en-US does not exist, but 'en' does and should be found
         activate_locale('en-US')
-        bundle = Bundle(['tests/main.ftl'])
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
         self.assertEqual(bundle.format('simple'), 'Simple')
 
     def test_locale_range_lookup_missing(self):
         # There is no fr or fr-XY (only fr-FR), neither of these should fallback
         # to fr-FR
         activate_locale('fr')
-        bundle = Bundle(['tests/main.ftl'])
-        self.assertRaises(FileNotFoundError, bundle.format, 'simple')
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
+        self.assertEqual(bundle.format('simple'), 'Simple')
 
         activate_locale('fr-XY')
         bundle = Bundle(['tests/main.ftl'])
-        self.assertRaises(FileNotFoundError, bundle.format, 'simple')
+        self.assertEqual(bundle.format('simple'), 'Simple')
 
     def test_locale_range_lookup_list(self):
         # fr-XY doesn't exist, fr-FR does
         activate_locale('fr-XY, fr-FR')
-        bundle = Bundle(['tests/main.ftl'])
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
         self.assertEqual(bundle.format('simple'), 'Facile')
 
         # en-GB doesn't exist, en does
         activate_locale('en-GB, en')
-        bundle = Bundle(['tests/main.ftl'])
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
         self.assertEqual(bundle.format('simple'), 'Simple')
 
     def test_missing_ftl_file(self):
         activate_locale('en')
-        bundle = Bundle(['tests/non-existant.ftl'])
+        bundle = Bundle(['tests/non-existant.ftl'], default_locale='en')
         self.assertRaises(FileNotFoundError, bundle.format, 'simple')
+
+    def test_number_formatting(self):
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
+        self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
+                         'Score: \u20681,234,567\u2069')
+        activate_locale('fr-FR')
+        self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
+                         'Points: \u20681\xa0234\xa0567\u2069')
+        deactivate_locale()
+        self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
+                         'Score: \u20681,234,567\u2069')
+
+    def test_number_formatting_for_fallback(self):
+        # When we fall back to a default, number formatting
+        # should be consistent with the language.
+        # German locale: 1.234.567
+        # System locale  (would probably be 'en',): 1,234,567
+        # French locale: 1 234 567⁩
+
+        bundle = Bundle(['tests/main.ftl'], default_locale='fr-FR')
+        activate_locale('de')
+        # Should get French words and formatting
+        self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
+                         'Points: \u20681\xa0234\xa0567\u2069')
 
     # TODO - check caches are actually working
 

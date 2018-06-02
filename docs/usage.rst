@@ -117,7 +117,6 @@ Our ``ftl_bundles.py`` file will look like this:
 which is a list of FTL files. See :class:`~django_ftl.bundles.Bundle` API docs
 for other arguments.
 
-
 Activating a locale/language
 ----------------------------
 

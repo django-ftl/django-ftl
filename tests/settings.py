@@ -38,3 +38,5 @@ TEMPLATES = [
         },
     },
 ]
+
+LANGUAGE_CODE = 'en'

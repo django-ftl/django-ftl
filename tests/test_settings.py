@@ -9,7 +9,7 @@ from django_ftl.conf import get_setting
 class TestSettings(TestCase):
 
     def test_default_fallback(self):
-        self.assertEqual(get_setting('LANGUAGE_CODE'), 'en-us')
+        self.assertEqual(get_setting('LANGUAGE_CODE'), 'en')
 
     @override_settings(FTL={'LANGUAGE_CODE': 'fr'})
     def test_ftl_override(self):
