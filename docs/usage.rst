@@ -8,18 +8,40 @@ APIs, in addition to understanding the `Fluent syntax
 <http://projectfluent.org/fluent/guide/>`_. This guide outlines the main things
 you need.
 
-TODO locale/language terminology
+Terminology
+-----------
+
+Internalisation (i18n) and localisation (l10n) tools usually distinguish between
+‘languages’ and ‘locales’. ‘Locale’ is a broader term than includes other
+cultural/regional differences, such as how numbers and dates are represented.
+
+Since they go together, Fluent does not only address language translation, it
+combines locale support. If a message contains a number substitution, when
+different locales are active the number formatting will match the language
+automatically.
+
+Django's `i18n docs
+<https://docs.djangoproject.com/en/stable/topics/i18n/#term-locale-name>`_
+distinguish between ‘locale name’ (which look like ``it``, ``en_US`` etc) and
+‘language code’ (which look like ``it``, ``en-us``). In reality there is a lot
+of overlap between these. Most modern systems (e.g. `unicode CLDR
+<http://cldr.unicode.org/>`_) use BCP 47 language tags, which are the same as
+‘language codes’. They in fact represent locales as well as languages, and have
+a mechanism for incorporating more specific locale information.
+
+Fluent and django-ftl use BCP 47 language tags in all their APIs (more
+information below).
 
 
 FTL files and layout
 --------------------
 
-Fluent translations are placed in Fluent Translation List files, with suffix
+Fluent translations are placed in Fluent Translation List files, with the suffix
 ``.ftl``. For them to be found by django-ftl, you need to use the following
 conventions, which align with the conventions used across other tools that use
 Fluent (such as Pontoon).
 
-For the sake of this tutorial, we will assume you are writing a Django app
+For the sake of this guide, we will assume you are writing a Django app
 (reusable or non-reusable) called ``myapp`` - that is, it forms a Python
 top-level module/package called ``myapp``. You will need to replace ``myapp``
 with the actual name of your app.
@@ -48,7 +70,7 @@ That is:
   locale name. The example above shows English and German. Locale names should
   be in `BCP 47 format <https://tools.ietf.org/html/bcp47>`_.
 
-* It is recommended that you follow the capitalisation convention in BCP47,
+* It is recommended that you follow the capitalisation convention in BCP 47,
   which is:
 
   * Lower case for the language code
@@ -64,15 +86,15 @@ That is:
   found correctly.
 
   Finally, django-ftl will also find the FTL files if you name the directories
-  in Unix convention with underscores e.g. ``en_GB``, although for the sake of
-  consistency and other tools this is also not recommended.
+  in Unix “locale name” convention with underscores e.g. ``en_GB``, although for
+  the sake of consistency and other tools this is also not recommended.
 
 * Within each specific locale directory, create another directory with the name
   of your app. This is necessary to give a separate namespace for your FTL
   files, so that they don't clash with the FTL files that might be provided by
   other Django apps. By doing it this way, you can reference FTL
   files from other apps in your app — this is very similar to how templates
-  and static files work in Django
+  and static files work in Django.
 
 * Within that ``myapp`` directory, you can add any number of further
   sub-directories, and can split your FTL files up into as many files as you
@@ -120,7 +142,7 @@ for other arguments.
 Activating a locale/language
 ----------------------------
 
-The most direct way to activate a specific language/locale is use
+The most direct way to activate a specific language/locale is to use
 :func:`django_ftl.activate_locale`:
 
 .. code-block:: python
@@ -129,8 +151,8 @@ The most direct way to activate a specific language/locale is use
 
    activate_locale("en-US")
 
-The argument can be any BCP 47 locale tag, or a "language priority list"
-(a prioritised, comma separated list of locale tags). For example::
+The argument can be any BCP 47 language tag, or a "language priority list"
+(a prioritised, comma separated list of language tags). For example::
 
   "en-US, en, fr"
 
@@ -216,8 +238,6 @@ The ``\u2068`` and ``\u2069`` characters are `unicode bidi isolation characters
 inserted by Fluent to ensure that the layout of text behaves correctly in case
 substitutions are in a different script to the surrounding text.
 
-TODO - explain unicode bidi chars
-
 That's it for the basic case. See :meth:`~django_ftl.bundles.Bundle.format` for
 further info about passing numbers and datetimes, and about how errors are
 handled.
@@ -228,7 +248,7 @@ Lazy translations
 Sometimes you need to translate a string lazily. This happens when you have a
 string that is defined at module load time (see the Django `lazy translation
 docs
-<https://docs.djangoproject.com/en/stable/topics/i18n/translation/#lazy-translation`_
+<https://docs.djangoproject.com/en/stable/topics/i18n/translation/#lazy-translation>`_
 for more info). For this situation, you can use
 :meth:`~django_ftl.bundles.Bundle.format_lazy` instead of ``format``. It takes
 the same parameters, but doesn't generate the translation until the value is

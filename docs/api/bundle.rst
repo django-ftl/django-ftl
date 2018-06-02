@@ -69,6 +69,13 @@
       The arguments passed in may also be strings or numbers that are used to
       select variants.
 
+   .. method:: format_lazy(message_id, args=None)
+
+      Same as :meth:`format`, but returns an object that delays translation
+      until the object is used in a string context.
+
+      This is important when defining strings at module level which
+      should be translated later, when the required locale is known.
 
 
 Error handling in Bundle
@@ -114,7 +121,8 @@ include:
 * ``Bundle.format``: If ``require_activate`` is True, this method will raise a
   ``django_ftl.bundles.NoLocaleSet`` exception if you attempt to use it before
   calling ``activate_locale``. This is a deliberate feature to help flush out
-  cases where you are using ``format`` before setting a locale.
+  cases where you are using :meth:`Bundle.format` before setting a locale,
+  instead of :meth:`Bundle.format_lazy`.
 
 These are deliberately intended to cause crashes, because you have a developer
 error that should cause failure as early and as loudly as possible.
