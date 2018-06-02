@@ -1,10 +1,14 @@
 # -*- coding-utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+import six
 from django.test import TestCase, override_settings
+from django.utils.encoding import force_text
 
 from django_ftl import activate_locale, deactivate_locale
 from django_ftl.bundles import Bundle, FileNotFoundError, NoLocaleSet, locale_lookups
+
+text_type = six.text_type
 
 
 class TestBundles(TestCase):
@@ -163,7 +167,29 @@ class TestBundles(TestCase):
 
     # TODO - check caches are actually working
 
-    # TODO lazy strings
+    def test_lazy(self):
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
+
+        l = bundle.format_lazy('simple')
+        self.assertEqual(force_text(l), 'Simple')
+        activate_locale('fr-FR')
+        self.assertEqual(force_text(l), 'Facile')
+        deactivate_locale()
+        self.assertEqual(force_text(l), 'Simple')
+
+    def test_lazy_with_require_activate(self):
+        bundle = Bundle(['tests/main.ftl'],
+                        default_locale='en',
+                        require_activate=True)
+        self.assertRaises(NoLocaleSet, bundle.format, 'simple')
+        msg = bundle.format_lazy('simple')
+
+        self.assertRaises(NoLocaleSet, force_text, msg)
+
+        activate_locale('en')
+        self.assertEqual(force_text(msg), 'Simple')
+        activate_locale('fr-FR')
+        self.assertEqual(force_text(msg), 'Facile')
 
 
 class TestLocaleLookups(TestCase):

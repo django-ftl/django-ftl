@@ -5,9 +5,10 @@ import os
 from collections import OrderedDict
 from threading import local
 
+import six
 from django.dispatch import Signal
 from django.utils import lru_cache
-from django.utils.functional import cached_property
+from django.utils.functional import cached_property, lazy
 from fluent.context import MessageContext
 
 from .conf import get_setting
@@ -15,6 +16,8 @@ from .conf import get_setting
 _active_locale = local()
 
 ftl_logger = logging.getLogger('django_ftl.message_errors')
+
+text_type = six.text_type
 
 
 class NoLocaleSet(AssertionError):
@@ -207,8 +210,7 @@ class Bundle(object):
         self._current_message_contexts = contexts
         return contexts
 
-    def format(self, message_id, args=None,
-               lazy=False):
+    def format(self, message_id, args=None):
         message_contexts = self.current_message_contexts
         for i, context in enumerate(message_contexts):
             try:
@@ -221,6 +223,8 @@ class Bundle(object):
 
         # None were successful, return default
         return '???'
+
+    format_lazy = lazy(format, text_type)
 
     def _log_error(self,
                    context,
