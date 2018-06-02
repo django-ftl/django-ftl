@@ -150,7 +150,7 @@ Using middleware
 activate a locale for every request. If you were using Django's built-in i18n
 solution previously, or are still using it for some parts of your app, you may
 also be using `django.middleware.locale.LocaleMiddleware
-<https://docs.djangoproject.com/en/2.0/ref/middleware/#django.middleware.locale.LocaleMiddleware>`_.
+<https://docs.djangoproject.com/en/stable/ref/middleware/#django.middleware.locale.LocaleMiddleware>`_.
 
 The way you choose to activate a given language will depend on your exact setup.
 
@@ -217,9 +217,55 @@ That's it for the basic case. See :meth:`~django_ftl.bundles.Bundle.format` for
 further info about passing numbers and datetimes, and about how errors are
 handled.
 
-TODO - lazy strings
+Lazy translations
+~~~~~~~~~~~~~~~~~
 
-TODO - alias the methods
+Sometimes you need to translate a string lazily. This happens when you have a
+string that is defined at module load time (see the Django `lazy translation
+docs
+<https://docs.djangoproject.com/en/stable/topics/i18n/translation/#lazy-translation`_
+for more info). For this situation, you can use
+:meth:`~django_ftl.bundles.Bundle.format_lazy` instead of ``format``. It takes
+the same parameters, but doesn't generate the translation until the value is
+used in a string context, such as in template rendering.
+
+For example, the ``help_text`` of a model field should be done this way:
+
+.. code-block:: python
+
+   from django.db import models
+   from myapp.ftl_bundles import main as ftl_bundle
+
+   class MyThing(models.Model):
+       name = models.CharField(help_text=ftl_bundle.format_lazy('mything-model-name-help-text'))
+
+If you do not do this, then the ``help_text`` attribute will end up having
+the text translated into the default language.
+
+To prevent this from happening, you can also pass ``require_activate=True``
+parameter to :meth:`~django_ftl.bundles.Bundle.__init__`. As long as you do not
+put a ``activate_locale`` call at module level in your project, this will cause
+the ``Bundle`` to raise an exception if attempt to use the ``format`` method at
+module level.
+
+
+Aliases
+~~~~~~~
+
+If you are using the ``format`` and ``format_lazy`` functions a lot, you can
+save on typing by defining some appropriate aliases for your bundle methods at
+the top of a module - for example:
+
+.. code-block:: python
+
+   from myapp.ftl_bundles import main as ftl_bundle
+
+   ftl = ftl_bundle.format
+   ftl_lazy = ftl_bundle.format_lazy
+
+
+Then use ``ftl`` and ``ftl_lazy`` just as you would use ``ftl_bundle.format``
+and ``ftl_bundle.format_lazy``.
 
 Using bundles from Django templates
 -----------------------------------
@@ -249,7 +295,7 @@ it as a user preference.
 
 Django has a built-in ``set_language`` view that you can use with django-ftl -
 see the `set_language docs
-<https://docs.djangoproject.com/en/2.0/topics/i18n/translation/#the-set-language-redirect-view>`_.
+<https://docs.djangoproject.com/en/stable/topics/i18n/translation/#the-set-language-redirect-view>`_.
 (It is designed to work with Django's built-in i18n solution but works just as
 well with django-ftl). It saves a user's language preference into the session
 (or a cookie if you are not using sessions), which you can then use later in a

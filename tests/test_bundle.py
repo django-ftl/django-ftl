@@ -191,6 +191,23 @@ class TestBundles(TestCase):
         activate_locale('fr-FR')
         self.assertEqual(force_text(msg), 'Facile')
 
+    def test_prevent_module_level_format(self):
+        try:
+            import tests.prevent_module_level_format  # noqa
+        except NoLocaleSet:
+            pass
+        else:
+            self.fail("Expected NoLocaleSet error")
+
+    def test_allow_module_level_format_lazy(self):
+        import tests.allow_module_level_format_lazy
+        self.assertRaises(NoLocaleSet,
+                          text_type,
+                          tests.allow_module_level_format_lazy.MyThing.my_label)
+        activate_locale('fr-FR')
+        self.assertEqual(force_text(tests.allow_module_level_format_lazy.MyThing.my_label),
+                         'Facile')
+
 
 class TestLocaleLookups(TestCase):
     # See https://tools.ietf.org/html/rfc4647#section-3.4

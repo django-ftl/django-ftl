@@ -37,8 +37,9 @@
       language has been activated. By passing ``require_activate=True``,
       :meth:`format` will raise an exception if you attempt to use it without
       first activating a language. This can be helpful to ensure that all code
-      paths that use Bundles are setting a language first.
-
+      paths that use Bundles are setting a language first, and especially for
+      ensuring that all module level uses of a ``Bundle`` use
+      :meth:`format_lazy` instead of :meth:`format`.
 
    .. method:: format(message_id, args=None)
 
@@ -89,7 +90,8 @@ you.
 If a message is missing entirely, for instance, you will get ``'???'`` returned
 from ``Bundle.format`` rather than an exception (but the error will be logged).
 If the message is missing from the requested locale, but available in the
-default, the default will be used (but you will still get an error logged).
+default locale, the default will be used (but you will still get an error
+logged).
 
 There are some places where django-ftl does throw exceptions, however. These
 include:
