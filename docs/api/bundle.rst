@@ -4,7 +4,7 @@
 
 .. currentmodule:: django_ftl.bundles
 
-.. class:: Bundle(files, default_locale=None, require_activate=False)
+.. class:: Bundle(files, default_locale=None, require_activate=False, use_isolating=True)
 
    Create a bundle from a list of files.
 
@@ -40,6 +40,13 @@
       paths that use Bundles are setting a language first, and especially for
       ensuring that all module level uses of a ``Bundle`` use
       :meth:`format_lazy` instead of :meth:`format`.
+
+   :param bool use_isolating:
+
+      Controls whether substitutions in messages should be surrounded with bidi
+      isolation characters. Defaults to ``True``. Pass ``False`` to disable this
+      (if, for example, all your text and substitutions are in scripts that go
+      in the same direction).
 
    .. method:: format(message_id, args=None)
 

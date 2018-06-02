@@ -209,7 +209,12 @@ message ID and an optional dictionary of arguments:
    'MyApp Events!'
 
    >>> ftl_bundle.format('events-greeting', {'username': 'boaty mcboatface'})
-   'Hello, ⁨\u2068boaty mcboatface\u2069⁩'
+   'Hello, \u2068boaty mcboatface\u2069'
+
+The ``\u2068`` and ``\u2069`` characters are `unicode bidi isolation characters
+<https://www.w3.org/International/questions/qa-bidi-unicode-controls>`_ that are
+inserted by Fluent to ensure that the layout of text behaves correctly in case
+substitutions are in a different script to the surrounding text.
 
 TODO - explain unicode bidi chars
 

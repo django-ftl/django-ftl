@@ -208,6 +208,15 @@ class TestBundles(TestCase):
         self.assertEqual(force_text(tests.allow_module_level_format_lazy.MyThing.my_label),
                          'Facile')
 
+    def test_use_isolating(self):
+        bundle_1 = Bundle(['tests/main.ftl'], default_locale='en')
+        self.assertEqual(bundle_1.format('with-argument', {'user': 'Horace'}),
+                         'Hello to \u2068Horace\u2069.')
+
+        bundle_2 = Bundle(['tests/main.ftl'], default_locale='en', use_isolating=False)
+        self.assertEqual(bundle_2.format('with-argument', {'user': 'Horace'}),
+                         'Hello to Horace.')
+
 
 class TestLocaleLookups(TestCase):
     # See https://tools.ietf.org/html/rfc4647#section-3.4
