@@ -11,14 +11,17 @@ you need.
 Terminology
 -----------
 
-Internalisation (i18n) and localisation (l10n) tools usually distinguish between
-‘languages’ and ‘locales’. ‘Locale’ is a broader term than includes other
-cultural/regional differences, such as how numbers and dates are represented.
+Internationalization and localization (i18n and l10n) tools usually distinguish
+between ‘languages’ and ‘locales’. ‘Locale’ is a broader term than includes
+other cultural/regional differences, such as how numbers and dates are
+represented.
 
-Since they go together, Fluent does not only address language translation, it
-combines locale support. If a message contains a number substitution, when
+Since they go together, Fluent not only addresses language translation, it also
+integrates locale support. If a message contains a number substitution, when
 different locales are active the number formatting will match the language
-automatically.
+automatically. For this reason the django-ftl docs generally do not make a big
+distinction between these terms, but tend to use ‘locale’ (which includes
+language).
 
 Django's `i18n docs
 <https://docs.djangoproject.com/en/stable/topics/i18n/#term-locale-name>`_
@@ -70,7 +73,7 @@ That is:
   locale name. The example above shows English and German. Locale names should
   be in `BCP 47 format <https://tools.ietf.org/html/bcp47>`_.
 
-* It is recommended that you follow the capitalisation convention in BCP 47,
+* It is recommended that you follow the capitalization convention in BCP 47,
   which is:
 
   * Lower case for the language code
@@ -80,7 +83,7 @@ That is:
   e.g. en, en-GB, en-US, de-DE, zh-Hans-CN
 
   django-ftl does not enforce this convention - it will find locale files if
-  different capitalisation is used. However, if multiple directories exist for
+  different capitalization is used. However, if multiple directories exist for
   the same locale, differing only by case (e.g. ``EN-US`` and ``en-US``), and
   their contents are not the same, then your FTL files will probably not be
   found correctly.
@@ -112,7 +115,7 @@ visit. It might have an English ``myapp/main.ftl`` file that looks like this:
 
 In this ``.ftl`` file, ``events-title``, ``events-greeting`` and
 ``events-new-events-info`` are Fluent message IDs. Note that we have used
-``events-`` as a adhoc namespace for this 'events' page, to avoid name clashes
+``events-`` as an adhoc namespace for this 'events' page, to avoid name clashes
 with other messages from our app. It's recommended to use a prefix like this for
 different pages or components in your app.
 
@@ -152,7 +155,7 @@ The most direct way to activate a specific language/locale is to use
    activate("en-US")
 
 The argument can be any BCP 47 language tag, or a "language priority list"
-(a prioritised, comma separated list of language tags). For example::
+(a prioritized, comma separated list of language tags). For example::
 
   "en-US, en, fr"
 
