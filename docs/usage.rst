@@ -143,13 +143,13 @@ Activating a locale/language
 ----------------------------
 
 The most direct way to activate a specific language/locale is to use
-:func:`django_ftl.activate_locale`:
+:func:`django_ftl.activate`:
 
 .. code-block:: python
 
-   from django_ftl import activate_locale
+   from django_ftl import activate
 
-   activate_locale("en-US")
+   activate("en-US")
 
 The argument can be any BCP 47 language tag, or a "language priority list"
 (a prioritised, comma separated list of language tags). For example::
@@ -215,7 +215,7 @@ other way to determine the language to use. This might involve:
   might be useful.
 
 Once you have determined the locale to use, use
-:func:`django_ftl.activate_locale` to activate it.
+:func:`django_ftl.activate` to activate it.
 
 Using bundles from Python
 -------------------------
@@ -269,7 +269,7 @@ the text translated into the default language.
 
 To prevent this from happening, you can also pass ``require_activate=True``
 parameter to :meth:`~django_ftl.bundles.Bundle.__init__`. As long as you do not
-put a ``activate_locale`` call at module level in your project, this will cause
+put a ``activate`` call at module level in your project, this will cause
 the ``Bundle`` to raise an exception if attempt to use the ``format`` method at
 module level.
 

@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from django.utils.translation import LANGUAGE_SESSION_KEY
 
-from django_ftl import activate_locale
+from django_ftl import activate
 
 
 def activate_from_request_session(get_response):
@@ -15,7 +15,7 @@ def activate_from_request_session(get_response):
         if LANGUAGE_SESSION_KEY in request.session:
             language_code = request.session[LANGUAGE_SESSION_KEY]
             request.LANGUAGE_CODE = language_code
-            activate_locale(language_code)
+            activate(language_code)
         return get_response(request)
 
     return middleware
@@ -30,7 +30,7 @@ def activate_from_request_language_code(get_response):
     Requires USE_I18N = True.
     """
     def middleware(request):
-        activate_locale(request.LANGUAGE_CODE)
+        activate(request.LANGUAGE_CODE)
         return get_response(request)
 
     return middleware

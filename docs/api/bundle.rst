@@ -120,7 +120,7 @@ include:
 
 * ``Bundle.format``: If ``require_activate`` is True, this method will raise a
   ``django_ftl.bundles.NoLocaleSet`` exception if you attempt to use it before
-  calling ``activate_locale``. This is a deliberate feature to help flush out
+  calling ``activate``. This is a deliberate feature to help flush out
   cases where you are using :meth:`Bundle.format` before setting a locale,
   instead of :meth:`Bundle.format_lazy`.
 

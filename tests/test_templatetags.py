@@ -4,7 +4,7 @@ from __future__ import absolute_import, unicode_literals, print_function
 from django.test import TestCase
 from django.template import Template, Context
 
-from django_ftl import activate_locale
+from django_ftl import activate
 from django_ftl.bundles import Bundle
 
 
@@ -15,7 +15,7 @@ main_bundle = Bundle(['tests/main.ftl'],
 
 class TestFtlTag(TestCase):
     def setUp(self):
-        activate_locale('en')
+        activate('en')
 
     def test_good(self):
         t = Template("""
@@ -52,7 +52,7 @@ class TestFtlTag(TestCase):
 
 class TestFtlConfTag(TestCase):
     def setUp(self):
-        activate_locale('en')
+        activate('en')
 
     def test_good(self):
         t = Template("""

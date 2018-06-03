@@ -5,9 +5,9 @@ from .bundles import activator
 __version__ = '0.0.2-dev'
 
 
-def activate_locale(locale):
+def activate(locale):
     activator.activate(locale)
 
 
-def deactivate_locale():
+def deactivate():
     activator.deactivate()
