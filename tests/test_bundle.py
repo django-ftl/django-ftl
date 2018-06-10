@@ -5,7 +5,7 @@ import six
 from django.test import TestCase, override_settings
 from django.utils.encoding import force_text
 
-from django_ftl import activate, deactivate
+from django_ftl import activate, deactivate, override
 from django_ftl.bundles import Bundle, FileNotFoundError, NoLocaleSet, locale_lookups
 
 text_type = six.text_type
@@ -77,6 +77,16 @@ class TestBundles(TestCase):
         activate('tr')
         self.assertEqual(bundle.format('simple'), "Basit")
         deactivate()
+        self.assertEqual(bundle.format('simple'), "Simple")
+
+    def test_override(self):
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
+        self.assertEqual(bundle.format('simple'), "Simple")
+        with override('tr'):
+            self.assertEqual(bundle.format('simple'), "Basit")
+            with override('fr-FR'):
+                self.assertEqual(bundle.format('simple'), "Facile")
+            self.assertEqual(bundle.format('simple'), "Basit")
         self.assertEqual(bundle.format('simple'), "Simple")
 
     def test_fallback(self):
