@@ -1,6 +1,6 @@
-====================
- django_ftl.bundles
-====================
+=========
+ Bundles
+=========
 
 .. currentmodule:: django_ftl.bundles
 

@@ -13,6 +13,7 @@ Contents:
 
    installation
    usage
+   api/index
    contributing
    authors
    history

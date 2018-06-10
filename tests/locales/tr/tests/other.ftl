@@ -1,0 +1,1 @@
+other-message = Başka-mesaj

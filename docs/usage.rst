@@ -102,7 +102,7 @@ That is:
 * Within that ``myapp`` directory, you can add any number of further
   sub-directories, and can split your FTL files up into as many files as you
   want. For the remainder of this guide we will assume a single
-  ``myapp/main.ftl`` file.
+  ``myapp/main.ftl`` file for each locale.
 
 
 The contents of these files must be valid Fluent syntax. For the sake of this
@@ -126,9 +126,9 @@ Bundles
 To use ``.ftl`` files with django-ftl, you must first define a
 :class:`~django_ftl.bundles.Bundle`. They represent a collection of ``.ftl``
 files that you want to use, and are responsible for finding and loading these
-files. The definition of a ``Bundle`` can go anywhere in your project, but by
-convention you should create a ``ftl_bundles.py`` file inside your Python
-``myapp`` package, i.e. a ``myapp.ftl_bundles`` module.
+files. The definition of a ``Bundle`` can go anywhere in your project, but we
+recommend the convention of creating a ``ftl_bundles.py`` file inside your
+Python ``myapp`` package, i.e. a ``myapp.ftl_bundles`` module.
 
 Our ``ftl_bundles.py`` file will look like this:
 
@@ -271,9 +271,9 @@ If you do not do this, then the ``help_text`` attribute will end up having
 the text translated into the default language.
 
 To prevent this from happening, you can also pass ``require_activate=True``
-parameter to :meth:`~django_ftl.bundles.Bundle.__init__`. As long as you do not
-put a ``activate`` call at module level in your project, this will cause
-the ``Bundle`` to raise an exception if attempt to use the ``format`` method at
+parameter to :class:`~django_ftl.bundles.Bundle`. As long as you do not
+put an ``activate`` call at module level in your project, this will cause the
+``Bundle`` to raise an exception if attempt to use the ``format`` method at
 module level.
 
 
@@ -309,7 +309,142 @@ your ``INSTALLED_APPS`` like this:
         ...
     )
 
-TODO - the rest
+Put ``{% load ftl %}`` at the top of your template to load the template tag
+library. It provides 3 template tags, at least two of which you will need:
+
+``ftlconf``
+~~~~~~~~~~~
+
+This is used to set up the configuration needed by ``ftlmsg``, namely the bundle
+to be used and the rendering mode. It should be used once near the top of a
+template (before any translations are needed), and should be used in the
+situation where most of the template will use the same bundle. For setting the
+configuration for just part of a template, use ``withftl``.
+
+The bundle is either a bundle object (passed in via the template context),
+or a string that is a dotted path to a bundle.
+
+The mode is currently limited to a single string value ``'server'``. In the
+future further options will be added (to enable support for client-side
+rendering/Pontoon), so it is recommended to use a context processor to add this
+value into template context, so that this single context processor can be
+changed in future to make use of those features.
+
+Example:
+
+.. code-block:: html+django
+
+   {% load ftl %}
+   {% ftlconf mode='server' bundle='myapp.ftl_bundles.main' %}
+
+
+Example where we use a context processor to set the mode, and pass in the bundle
+object from the view:
+
+.. code-block:: python
+
+   # In settings.py
+
+   TEMPLATE = [
+      {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'OPTIONS': {
+            'context_processors': [
+               # ...
+               'myapp.context_processors.ftl_mode',
+            ]
+        },
+      }
+   ]
+
+.. code-block:: python
+
+   # myapp/context_processors.py
+
+   def ftl_mode(request):
+       return {'ftl_mode': 'server'}
+
+
+.. code-block:: python
+
+   # myapp.views
+
+   from myapp.ftl_bundles import main as main_bundle
+
+   def my_view(request):
+       # ...
+       return render(request, 'myapp/mypage.html',
+                     {'ftl_bundle': main_bundle})
+
+.. code-block:: html+django
+
+   {# myapp/events.html #}
+
+   {% load ftl %}
+   {% ftlconf mode=ftl_mode bundle=ftl_bundle %}
+
+
+``mode`` and ``bundle`` are both optional and can be set on different calls to
+``ftlconf``, but both must be set before using ``ftlmsg``.
+
+withftl
+~~~~~~~
+
+``withftl`` is similar to ``ftlconf`` in that its purpose is to set
+configuration data for generating messages. It differs in that:
+
+1. It sets the data only for the contained template nodes, up to a closing
+   ``endwithftl`` node, which is required.
+
+2. It also takes a ``language`` parameter that can be used to override the
+   language, in addition to the ``mode`` and ``bundle`` parameters that
+   ``ftlconf`` take.
+
+Multiple nested ``withftl`` tags can be used, and they can be nested into a
+template that has ``ftlconf`` at the top, and their scope will be limited to the
+contained template nodes as you would expect.
+
+Example:
+
+.. code-block:: html+django
+
+   {% load ftl %}
+   {% ftlconf mode='server' %}
+
+   {% withftl bundle='myapp.ftl_bundles.main' %}
+      {% ftlmsg 'events-title' %}
+   {% endwithftl %}
+
+   {% withftl bundle='myapp.ftl_bundles.other' language='fr' %}
+      {% ftlmsg 'other-message' %}
+   {% endwithftl %}
+
+
+As with ``ftlconf``, the parameters do not have to be just literal strings, they
+can refer to values in the context as most template tags can. You must supply
+one or more of ``mode``, ``bundle`` or ``language``.
+
+ftlmsg
+~~~~~~
+
+Finally, to actually render a message, you need to use ``ftlmsg``. It takes one
+required parameter, the message ID, and any number of keyword arguments, which
+correspond to the parameters you would pass in the arguments dictionary when
+calling :meth:`~django_ftl.bundles.Bundle.format` in Python code.
+
+Example:
+
+.. code-block:: html+django
+
+   {% load ftl %}
+   {% ftlconf mode='server' bundle='myapp.ftl_bundles.main' %}
+
+   <body>
+      <h1>{% ftlmsg 'events-title' %}</h1>
+
+      <p>{% ftlmsg 'events-greeting' username=request.user.username %}</p>
+   </body>
+
 
 
 .. _setting-user-language:
