@@ -94,12 +94,11 @@ django-ftl in general follows the same principle. This means that things like
 missing ``.ftl`` files are tolerated, and most ``Bundle`` methods rarely throw
 exceptions.
 
-Instead, when errors occur they are collected, and are logged. Errors found in
+Instead, when errors occur they are collected and then logged. Errors found in
 ``.ftl`` message files, or generated at runtime due to bad arguments, for
-example, they will be logged at ``ERROR`` level use the stdlib logging
-framework, to the ``django_ftl.message_errors`` logger. Ensure that these errors
-are visible in your logs, and this should make these problems more visible to
-you.
+example, will be logged at ``ERROR`` level use the stdlib logging framework, to
+the ``django_ftl.message_errors`` logger. Ensure that these errors are visible
+in your logs, and this should make these problems more visible to you.
 
 If a message is missing entirely, for instance, you will get ``'???'`` returned
 from ``Bundle.format`` rather than an exception (but the error will be logged).
