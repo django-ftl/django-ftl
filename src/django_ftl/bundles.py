@@ -9,9 +9,12 @@ import six
 from django.dispatch import Signal
 from django.utils import lru_cache
 from django.utils.functional import cached_property, lazy
+from django.utils.html import conditional_escape as conditional_html_escape
+from django.utils.html import mark_safe as mark_html_escaped
 from fluent.context import MessageContext
 
 from .conf import get_setting
+from .utils import make_namespace
 
 _active_locale = local()
 
@@ -116,6 +119,15 @@ class LanguageActivator(object):
 activator = LanguageActivator()
 
 
+html_escaper = make_namespace(
+    select=lambda message_id=None, **hints: message_id.endswith('-html'),
+    mark_escaped=mark_html_escaped,
+    escape=conditional_html_escape,
+    string_join=lambda parts: mark_html_escaped(''.join(conditional_html_escape(p) for p in parts)),
+    name="django_html_escaper",
+)
+
+
 class Bundle(object):
     def __init__(self, paths,
                  finder=default_finder,
@@ -136,7 +148,8 @@ class Bundle(object):
         activator.locale_changed.connect(self.locale_changed_receiver)
 
     def _make_message_context(self, locale):
-        return MessageContext([locale], use_isolating=self._use_isolating)
+        return MessageContext([locale], use_isolating=self._use_isolating,
+                              escapers=[html_escaper])
 
     @property
     def current_locale(self):
