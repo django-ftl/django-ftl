@@ -463,3 +463,25 @@ see the `set_language docs
 well with django-ftl). It saves a user's language preference into the session
 (or a cookie if you are not using sessions), which you can then use later in a
 middleware or view, for example.
+
+
+Auto-reloading
+--------------
+
+By default, django-ftl loads and caches all FTL files on first usage. In
+development, this can be annoying as changes are not reflected unless you
+restart the development server. To solve this, django-ftl comes with a
+auto-reloader for development mode. To use it, you must install pyinotify::
+
+    $ pip install pyinotify
+
+By default, if you have ``DEBUG = True`` in your settings (which is normally the
+case for development mode), the reloader will be used and any changes to FTL
+files references from bundles will be detected and picked up immediately.
+
+You can also control this manually with your ``FTL`` settings in
+``settings.py``::
+
+    FTL = {
+        'AUTO_RELOAD_BUNDLES': True
+    }

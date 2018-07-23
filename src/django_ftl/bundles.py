@@ -6,6 +6,7 @@ from collections import OrderedDict
 from threading import local
 
 import six
+from django.conf import settings
 from django.dispatch import Signal
 from django.utils import lru_cache
 from django.utils.functional import cached_property, lazy
@@ -49,7 +50,7 @@ class MessageFinderBase(object):
     def locale_base_dirs(self):
         raise NotImplementedError()
 
-    def load(self, locale, path):
+    def load(self, locale, path, reloader=None):
         locale = normalize_bcp47(locale)
         all_bases = self.locale_base_dirs
         tried = []
@@ -63,7 +64,10 @@ class MessageFinderBase(object):
             full_path = os.path.join(locale_dir, path)
             try:
                 with open(full_path, "rb") as f:
+                    if reloader is not None:
+                        reloader.add_watched_path(full_path)
                     return f.read().decode('utf-8')
+
             except (IOError, OSError):
                 tried.append(full_path)
 
@@ -134,11 +138,11 @@ class Bundle(object):
                  default_locale=None,
                  use_isolating=True,
                  require_activate=False,
+                 auto_reload=None,
                  activator=activator):
 
         self._paths = paths
         self._finder = finder
-        self._loaded = False
         self._all_message_contexts = {}  # dict from locale to MessageContext
         self._default_locale = default_locale
         self._use_isolating = use_isolating
@@ -146,6 +150,18 @@ class Bundle(object):
 
         self.current_locale = activator.get_current_value()
         activator.locale_changed.connect(self.locale_changed_receiver)
+        if auto_reload is None:
+            auto_reload = get_setting('AUTO_RELOAD_BUNDLES', None)
+
+        if auto_reload is None:
+            auto_reload = settings.DEBUG
+
+        if auto_reload:
+            # import at this point to avoid importing pyinotify if we don't need it.
+            from .autoreload import create_bundle_reloader
+            self._reloader = create_bundle_reloader(self)
+        else:
+            self._reloader = None
 
     def _make_message_context(self, locale):
         return MessageContext([locale], use_isolating=self._use_isolating,
@@ -167,6 +183,13 @@ class Bundle(object):
 
     def locale_changed_receiver(self, sender, new_value=None, **kwargs):
         self.current_locale = new_value
+
+    def reload(self):
+        try:
+            del self._current_message_contexts
+        except AttributeError:
+            pass
+        self._all_message_contexts = {}
 
     def _get_default_locale(self):
         default_locale = self._default_locale
@@ -207,7 +230,7 @@ class Bundle(object):
 
                 for path in self._paths:
                     try:
-                        contents = self._finder.load(locale, path)
+                        contents = self._finder.load(locale, path, reloader=self._reloader)
                     except FileNotFoundError:
                         if locale == default_locale:
                             # Can't find any FTL with the specified filename, we
