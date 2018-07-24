@@ -129,6 +129,7 @@ html_escaper = make_namespace(
     escape=conditional_html_escape,
     string_join=lambda parts: mark_html_escaped(''.join(conditional_html_escape(p) for p in parts)),
     name="django_html_escaper",
+    use_isolating=False,
 )
 
 
