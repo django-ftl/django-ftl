@@ -449,6 +449,36 @@ Example:
 
 .. _setting-user-language:
 
+HTML escaping
+-------------
+
+django-ftl plugs in to python-fluent's escaping mechanism and provides an
+escaper out of the box that allows you to handle HTML embedded in your messages.
+To use it, give your message IDs the suffix ``-html``. For example::
+
+   welcome-message-html = Welcome { $name }, you look <i>wonderful</i> today.
+
+In this example, ``$name`` will have HTML escaping applied as you expect and
+need, while the ``<i>wonderful</i>`` markup will be left as it is. The whole
+message will be returned as a Django ``SafeText`` instance so that further HTML
+escaping will not be applied.
+
+It is recommended not to use ``-html`` unless you need it, because that will
+limit the use of a message to HTML contexts, and it also requires translators to
+write correct HTML (for example, with ampersands written as ``&amp;``).
+
+Note that there are rules regarding how messages with different escapers can be
+used. For example::
+
+  -brand = Ali & Alisha's ice cream
+
+  -brand-html = Ali &amp; Alisha's <b>cool</b> ice cream
+
+The ``-brand`` term can be used from any other message, and from a ``…-html``
+message it will be correctly escaped. the ``-brand-html`` term, however, can
+only be used from other ``…-html`` messages.
+
+
 Setting the user language preference
 ------------------------------------
 
