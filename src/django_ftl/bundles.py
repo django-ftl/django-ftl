@@ -10,6 +10,7 @@ from django.conf import settings
 from django.dispatch import Signal
 from django.utils import lru_cache
 from django.utils.functional import cached_property, lazy
+from django.utils.html import SafeText
 from django.utils.html import conditional_escape as conditional_html_escape
 from django.utils.html import mark_safe as mark_html_escaped
 from fluent.context import MessageContext
@@ -124,11 +125,12 @@ activator = LanguageActivator()
 
 
 html_escaper = make_namespace(
+    name="django_html_escaper",
     select=lambda message_id=None, **hints: message_id.endswith('-html'),
+    output_type=SafeText,
     mark_escaped=mark_html_escaped,
     escape=conditional_html_escape,
-    string_join=lambda parts: mark_html_escaped(''.join(conditional_html_escape(p) for p in parts)),
-    name="django_html_escaper",
+    join=lambda parts: mark_html_escaped(''.join(conditional_html_escape(p) for p in parts)),
     use_isolating=False,
 )
 
