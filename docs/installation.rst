@@ -16,5 +16,4 @@ that just got installed::
 
 And install the bleeding edge version::
 
-
-    $ pip install -e git+https://github.com/django-ftl/python-fluent@implement_format#egg=fluent
+    $ pip install -e git+https://github.com/django-ftl/python-fluent@django-ftl-latest#egg=fluent
