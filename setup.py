@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, print_function  # noqa: FI14
+
 import os
 import re
 import sys
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 
 def get_version(*file_paths):
@@ -39,13 +41,18 @@ if sys.argv[-1] == 'tag':
     sys.exit()
 
 readme = open('README.rst').read()
-history = open('HISTORY.rst').read().replace('.. :changelog:', '')
+if hasattr(readme, 'decode'):
+    readme = readme.decode('utf-8')
+history = open('HISTORY.rst').read()
+if hasattr(history, 'decode'):
+    history = history.decode('utf-8')
+history = history.replace(u'.. :changelog:', u'')
 
 setup(
     name='django-ftl',
     version=version,
     description="""Django bindings for 'fluent', the localization system for today's world.""",
-    long_description=readme + '\n\n' + history,
+    long_description=readme + u'\n\n' + history,
     author='Luke Plant',
     author_email='L.Plant.98@cantab.net',
     url='https://github.com/django-ftl/django-ftl',

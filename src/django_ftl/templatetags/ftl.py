@@ -1,8 +1,8 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import contextlib
-import six
 
+import six
 from django import template
 from django.template.base import token_kwargs
 from django.utils.module_loading import import_string

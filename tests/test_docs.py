@@ -7,7 +7,6 @@ from django.test import TestCase
 from django_ftl import activate
 from django_ftl.bundles import Bundle
 
-
 ftl_bundle = Bundle(['tests/docs.ftl'])
 
 

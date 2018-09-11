@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django_ftl.bundles import Bundle
+
 # This module should not raise an exception if you try to import it
 
-from django_ftl.bundles import Bundle
 
 main = Bundle(['tests/main.ftl'],
               default_locale='en',
