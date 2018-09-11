@@ -8,7 +8,7 @@ Release process
 * Update the version number, removing the ``-dev1`` part
 
   * setup.py
-  * src/elm_fluent/__init__.py
+  * src/django_ftl/__init__.py
   * docs/conf.py
 
 * Ensure correct file permissions::
