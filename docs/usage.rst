@@ -447,8 +447,6 @@ Example:
 
 
 
-.. _setting-user-language:
-
 HTML escaping
 -------------
 
@@ -478,6 +476,7 @@ The ``-brand`` term can be used from any other message, and from a ``…-html``
 message it will be correctly escaped. the ``-brand-html`` term, however, can
 only be used from other ``…-html`` messages.
 
+.. _setting-user-language:
 
 Setting the user language preference
 ------------------------------------
