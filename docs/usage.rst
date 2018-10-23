@@ -476,6 +476,23 @@ The ``-brand`` term can be used from any other message, and from a ``…-html``
 message it will be correctly escaped. the ``-brand-html`` term, however, can
 only be used from other ``…-html`` messages.
 
+Template considerations
+-----------------------
+
+A very common mistake in i18n is forgetting to set the ``lang`` tag on HTML
+content. In the normal case, each base template that contains an ``<html>`` tag
+needs to be modified to add the ``lang`` attribute - assuming you've used
+middleware as described above this could be as simple as:
+
+
+.. code-block:: html+django
+
+   <html lang="{{ request.LANGUAGE_CODE }}">
+
+See `w3c docs on the lang attribute
+<https://www.w3.org/International/questions/qa-html-language-declarations>`_ for
+more information.
+
 .. _setting-user-language:
 
 Setting the user language preference
