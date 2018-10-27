@@ -13,5 +13,6 @@ env:
   - DJANGO="1.11"
   - DJANGO="2.0"
 
-install: pip install tox tox-travis
+install: pip install tox tox-travis coverage codecov
 script: tox
+after_success: coverage combine && codecov
