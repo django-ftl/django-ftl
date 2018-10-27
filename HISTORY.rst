@@ -6,6 +6,9 @@ History
 0.9.1 (under development)
 +++++++++++++++++++++++++
 
+* Changed development autoreload mechanism to not interfere with Django's
+  development server autoreload.
+
 0.9 (2018-09-10)
 ++++++++++++++++
 
