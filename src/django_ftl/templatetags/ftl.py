@@ -54,7 +54,7 @@ def ftlmsg(context, message_id, **kwargs):
 
 def validate_mode(mode):
     if mode not in MODES:
-        raise ValueError("mode '{0}' not understood, must be one of {2}"
+        raise ValueError("mode '{0}' not understood, must be one of {1}"
                          .format(mode, MODES))
 
 
@@ -71,6 +71,8 @@ class WithFtlNode(template.Node):
     def render(self, context):
         language = None if self.language is None else self.language.resolve(context)
         mode = None if self.mode is None else self.mode.resolve(context)
+        if mode is not None:
+            validate_mode(mode)
         bundle = None if self.bundle is None else resolve_bundle(self.bundle.resolve(context))
         new_context = {}
         if mode is not None:

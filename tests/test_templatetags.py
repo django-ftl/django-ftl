@@ -162,3 +162,20 @@ class TestWithFtlTag(TestCase):
         """)
         self.assertEqual(re.split(r'\s+', t.render(Context({})).strip()),
                          ["Simple", "Facile", "Basit", "Facile", "Simple"])
+
+    def test_withftl_bad_mode(self):
+        t = Template("""
+        {% load ftl %}
+        {% withftl mode='xxx' bundle='tests.test_templatetags.main_bundle' %}
+          {% ftlmsg 'simple' %}
+        {% endwithftl %}
+        """)
+        self.assertRaises(ValueError, t.render, Context({}))
+
+    def test_ftlconf_bad_mode(self):
+        t = Template("""
+        {% load ftl %}
+        {% ftlconf mode='xxx' bundle='tests.test_templatetags.main_bundle' %}
+        {% ftlmsg 'simple' %}
+        """)
+        self.assertRaises(ValueError, t.render, Context({}))
