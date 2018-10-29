@@ -18,7 +18,7 @@ def activate(locale):
 def deactivate():
     """
     Deactivate the current locale/language. Bundles will
-    fall back to the default locale.
+    fall back to the default locale (if require_activate=False)
     """
     activator.deactivate()
 

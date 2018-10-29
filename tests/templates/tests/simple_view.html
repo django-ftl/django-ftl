@@ -1,0 +1,33 @@
+{% load ftl %}
+{% load i18n %}
+
+{% ftlconf mode='server' bundle='tests.ftl_bundles.simple_view' %}
+<!DOCTYPE html>
+<html lang="{{ request.LANGUAGE_CODE }}">
+  <head>
+    <title>{% ftlmsg 'simple-title' %}</title>
+  </head>
+  <body>
+    <p>
+      {% ftlmsg 'simple-current-language-code' code=request.LANGUAGE_CODE %}
+    </p>
+
+    <div>
+      <form action="{% url 'set_language' %}" method="post">
+        {% csrf_token %}
+        {% ftlmsg 'simple-choose-language' %}
+        <select name="language">
+          {% get_available_languages as LANGUAGES %}
+          {% get_language_info_list for LANGUAGES as languages %}
+          {% for language in languages %}
+            <option value="{{ language.code }}"{% if language.code == request.LANGUAGE_CODE %} selected{% endif %}>
+              {{ language.name_local }}
+            </option>
+          {% endfor %}
+        </select>
+        <input name="next" type="hidden" value="{{ request.get_full_path }}" />
+        <input type="submit" class="btn" value="Go" />
+      </form>
+    </div>
+  </body>
+</html>

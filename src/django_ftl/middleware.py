@@ -1,8 +1,9 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django.conf import settings
 from django.utils.translation import LANGUAGE_SESSION_KEY
 
-from django_ftl import activate
+from django_ftl import override
 
 
 def activate_from_request_session(get_response):
@@ -12,11 +13,10 @@ def activate_from_request_session(get_response):
     request.session[LANGUAGE_SESSION_KEY] for Fluent translations.
     """
     def middleware(request):
-        if LANGUAGE_SESSION_KEY in request.session:
-            language_code = request.session[LANGUAGE_SESSION_KEY]
-            request.LANGUAGE_CODE = language_code
-            activate(language_code)
-        return get_response(request)
+        language_code = request.session.get(LANGUAGE_SESSION_KEY, settings.LANGUAGE_CODE)
+        request.LANGUAGE_CODE = language_code
+        with override(language_code):
+            return get_response(request)
 
     return middleware
 
@@ -30,7 +30,7 @@ def activate_from_request_language_code(get_response):
     Requires USE_I18N = True.
     """
     def middleware(request):
-        activate(request.LANGUAGE_CODE)
-        return get_response(request)
+        with override(request.LANGUAGE_CODE):
+            return get_response(request)
 
     return middleware

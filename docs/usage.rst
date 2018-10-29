@@ -165,19 +165,37 @@ Normally it will come from a list of options that you have given to a user (see
 
 As soon as you activate a language, all ``Bundle`` objects will switch to using
 that language. (Before activating, they will use your ``LANGUAGE_CODE`` setting
-as a default, and this is also used as a fallback in the case of missing FTL
-files or messages).
+as a default if ``require_activate=False``, and this is also used as a fallback
+in the case of missing FTL files or messages).
+
+Please note that ``activate`` is stateful, meaning it is essentially a global
+variable that is preserved between requests. This introduces the possibility
+that one user's request changes the behavior of subsequent requests made by a
+completely different user. This problem can also affect test isolation in
+automated tests. The best way to avoid these problems is to use
+:func:`django_ftl.override` instead:
+
+
+.. code-block:: python
+
+   from django_ftl import activate
+
+   with override("en-US"):
+       pass  # Code that uses this language
+
+Alternatively, ensure that :func:``deactivate`` is called at the end of a
+request.
 
 Using middleware
 ~~~~~~~~~~~~~~~~
+
+The way you choose to activate a given language will depend on your exact setup.
 
 ``django-ftl`` comes with a few middleware that may help you automatically
 activate a locale for every request. If you were using Django's built-in i18n
 solution previously, or are still using it for some parts of your app, you may
 also be using `django.middleware.locale.LocaleMiddleware
 <https://docs.djangoproject.com/en/stable/ref/middleware/#django.middleware.locale.LocaleMiddleware>`_.
-
-The way you choose to activate a given language will depend on your exact setup.
 
 If you are already using ``django.middleware.locale.LocaleMiddleware``, and want
 to continue using it, the easiest solution is to add
@@ -195,14 +213,26 @@ to continue using it, the easiest solution is to add
 
 This is a very simple middleware that simply looks at ``request.LANGUAGE_CODE``
 (which has been set by ``django.middleware.locale.LocaleMiddleware``) and
-activates that language.
+activates that language for django-ftl.
 
 Instead of these two, you could also use
 ``"django_ftl.middleware.activate_from_request_session"`` by adding it to your
 ``MIDDLEWARE`` (somewhere after the session middleware). This middleware looks
 for a language set in ``request.session``, as set by the ``set_language`` view
-that Django provides.
+that Django provides (see `set_language docs
+<https://docs.djangoproject.com/en/stable/topics/i18n/translation/#set-language-redirect-view>`_),
+and uses this value, falling back to ``settings.LANGUAGE_CODE`` if it is not
+found. It also sets ``request.LANGUAGE_CODE`` to the same value, similar to how
+``django.middleware.locale.LocaleMiddleware`` behaves.
 
+Both of these provided middleware use ``override`` to set the locale, not
+``activate``, as per the advice above, for better request and test isolation.
+
+You are not limited to these middleware, or to using Django's ``set_language``
+view — these are provided as shortcuts and examples. In some cases it will be
+best to write your own, using the `middleware source code
+<https://github.com/django-ftl/django-ftl/blob/master/src/django_ftl/middleware.py>`_
+as a starting point.
 
 Outside of the request-response cycle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -218,7 +248,7 @@ other way to determine the language to use. This might involve:
   might be useful.
 
 Once you have determined the locale to use, use
-:func:`django_ftl.activate` to activate it.
+:func:`django_ftl.activate` or :func:`django_ftl.override` to activate it.
 
 Using bundles from Python
 -------------------------

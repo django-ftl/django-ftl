@@ -4,10 +4,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 import re
 
 from django.template import Context, Template
-from django.test import TestCase
 
 from django_ftl import activate
 from django_ftl.bundles import Bundle
+
+from .base import TestBase
 
 main_bundle = Bundle(['tests/main.ftl'],
                      use_isolating=False,
@@ -18,7 +19,7 @@ other_bundle = Bundle(['tests/other.ftl'],
                       default_locale='en')
 
 
-class TestFtlConfTag(TestCase):
+class TestFtlConfTag(TestBase):
     def setUp(self):
         activate('en')
 
@@ -69,7 +70,7 @@ class TestFtlConfTag(TestCase):
                          "Hello to Mary &amp; Jane.")
 
 
-class TestWithFtlTag(TestCase):
+class TestWithFtlTag(TestBase):
     def setUp(self):
         activate('en')
 

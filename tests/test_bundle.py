@@ -2,20 +2,18 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import six
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.utils.encoding import force_text
 
 from django_ftl import activate, deactivate, override
 from django_ftl.bundles import Bundle, FileNotFoundError, NoLocaleSet, locale_lookups
 
+from .base import TestBase
+
 text_type = six.text_type
 
 
-class TestBundles(TestCase):
-
-    def setUp(self):
-        deactivate()
-
+class TestBundles(TestBase):
     def test_no_locale_set_with_require_activate(self):
         bundle = Bundle(['tests/main.ftl'],
                         default_locale='en',
@@ -228,7 +226,7 @@ class TestBundles(TestCase):
                          'Hello to Horace.')
 
 
-class TestLocaleLookups(TestCase):
+class TestLocaleLookups(TestBase):
     # See https://tools.ietf.org/html/rfc4647#section-3.4
 
     def test_language(self):

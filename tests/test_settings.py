@@ -1,11 +1,13 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.test import TestCase, override_settings
+from django.test import override_settings
 
 from django_ftl.conf import get_setting
 
+from .base import TestBase
 
-class TestSettings(TestCase):
+
+class TestSettings(TestBase):
 
     def test_default_fallback(self):
         self.assertEqual(get_setting('LANGUAGE_CODE'), 'en')

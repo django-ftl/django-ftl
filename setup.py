@@ -4,9 +4,29 @@ from __future__ import absolute_import, print_function  # noqa: FI14
 
 import os
 import re
+import subprocess
 import sys
 
 from setuptools import find_packages, setup
+from setuptools.command.test import test as TestCommand
+
+
+class MyTestCommand(TestCommand):
+
+    description = 'run linters, tests and create a coverage report'
+    user_options = []
+
+    def run_tests(self):
+        self._run(['flake8', 'django_ftl', 'test'])
+        self._run(['./runtests.py'])
+        self._run(['check-manifest'])
+
+    def _run(self, command):
+        try:
+            subprocess.check_call(command)
+        except subprocess.CalledProcessError as error:
+            print('Command "{0}" failed with exit code'.format(" ".join(command)), error.returncode)
+            sys.exit(error.returncode)
 
 
 def get_version(*file_paths):
@@ -63,9 +83,11 @@ setup(
         'fluent',
         'Django>=1.11',
     ],
+    tests_require=open('requirements_test.txt').read().split('\n'),
     license="MIT",
     zip_safe=False,
     keywords='django-ftl',
+    cmdclass={'test': MyTestCommand},
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Framework :: Django :: 1.11',

@@ -2,10 +2,11 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import six
-from django.test import TestCase
 from django.utils.html import SafeText, mark_safe
 
 from django_ftl.bundles import Bundle
+
+from .base import TestBase
 
 text_type = six.text_type
 
@@ -15,7 +16,7 @@ bundle = Bundle(['tests/escaping.ftl'],
                 default_locale='en')
 
 
-class TestBundles(TestCase):
+class TestBundles(TestBase):
     maxDiff = None
 
     def test_html(self):
