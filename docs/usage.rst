@@ -546,8 +546,9 @@ Auto-reloading
 
 By default, django-ftl loads and caches all FTL files on first usage. In
 development, this can be annoying as changes are not reflected unless you
-restart the development server. To solve this, django-ftl comes with a
-auto-reloader for development mode. To use it, you must install pyinotify::
+restart the development server. To solve this, django-ftl comes with an
+auto-reloading mechanism for development mode. To use it, you must install
+pyinotify::
 
     $ pip install pyinotify
 
