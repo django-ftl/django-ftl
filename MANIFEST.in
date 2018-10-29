@@ -1,10 +1,7 @@
-include AUTHORS.rst
-include CONTRIBUTING.rst
-include HISTORY.rst
-include LICENSE
-include README.rst
-include tox.ini
+include *.rst
 include *.py
+include LICENSE
+include tox.ini
 include release.sh
 include requirements*.txt
 include .coveragerc
