@@ -164,9 +164,9 @@ Normally it will come from a list of options that you have given to a user (see
 :ref:`setting-user-language` below).
 
 As soon as you activate a language, all ``Bundle`` objects will switch to using
-that language. (Before activating, they will use your ``LANGUAGE_CODE`` setting
-as a default if ``require_activate=False``, and this is also used as a fallback
-in the case of missing FTL files or messages).
+that language, for the current thread only. (Before activating, they will use
+your ``LANGUAGE_CODE`` setting as a default if ``require_activate=False``, and
+this is also used as a fallback in the case of missing FTL files or messages).
 
 Please note that ``activate`` is stateful, meaning it is essentially a global
 variable that is preserved between requests. This introduces the possibility

@@ -3,11 +3,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 import logging
 import os
 from collections import OrderedDict
-from threading import local
+from threading import Lock, local
 
 import six
 from django.conf import settings
-from django.dispatch import Signal
 from django.utils import lru_cache
 from django.utils.functional import cached_property, lazy
 from django.utils.html import SafeText
@@ -104,15 +103,12 @@ default_finder = DjangoMessageFinder()
 
 
 class LanguageActivator(object):
-    locale_changed = Signal()
 
     def activate(self, locale):
         old_value = self.get_current_value()
         if old_value == locale:
             return
         _active_locale.value = locale
-
-        self.locale_changed.send(self, old_value=old_value, new_value=locale)
 
     def deactivate(self):
         self.activate(None)
@@ -141,18 +137,15 @@ class Bundle(object):
                  default_locale=None,
                  use_isolating=True,
                  require_activate=False,
-                 auto_reload=None,
-                 activator=activator):
+                 auto_reload=None):
 
         self._paths = paths
         self._finder = finder
-        self._all_message_contexts = {}  # dict from locale to MessageContext
         self._default_locale = default_locale
         self._use_isolating = use_isolating
         self._require_activate = require_activate
+        self._lock = Lock()
 
-        self.current_locale = activator.get_current_value()
-        activator.locale_changed.connect(self.locale_changed_receiver)
         if auto_reload is None:
             auto_reload = get_setting('AUTO_RELOAD_BUNDLES', None)
 
@@ -165,34 +158,16 @@ class Bundle(object):
             self._reloader = create_bundle_reloader(self)
         else:
             self._reloader = None
+        self.reload()
 
     def _make_message_context(self, locale):
         return MessageContext([locale], use_isolating=self._use_isolating,
                               escapers=[html_escaper])
 
-    @property
-    def current_locale(self):
-        return getattr(self, '_current_locale', None)
-
-    @current_locale.setter
-    def current_locale(self, value):
-        old_value = self.current_locale
-        self._current_locale = value
-        if old_value != value:
-            try:
-                del self._current_message_contexts
-            except AttributeError:
-                pass
-
-    def locale_changed_receiver(self, sender, new_value=None, **kwargs):
-        self.current_locale = new_value
-
     def reload(self):
-        try:
-            del self._current_message_contexts
-        except AttributeError:
-            pass
-        self._all_message_contexts = {}
+        with self._lock:
+            self._all_message_contexts = {}  # dict from available locale to MessageContext
+            self._message_contexts_for_current_locale = {}  # dict from chosen locale to list of MessageContext
 
     def _get_default_locale(self):
         default_locale = self._default_locale
@@ -201,23 +176,22 @@ class Bundle(object):
 
         return get_setting('LANGUAGE_CODE')
 
-    @property
-    def current_message_contexts(self):
+    def get_message_contexts_for_current_locale(self):
+        current_locale = activator.get_current_value()
         try:
-            return self._current_message_contexts
-        except AttributeError:
+            return self._message_contexts_for_current_locale[current_locale]
+        except KeyError:
             pass
 
-        current_locale = self.current_locale
-        default_locale = self._get_default_locale()
         if current_locale is None:
             if self._require_activate:
-                raise NoLocaleSet("Bundle.current_locale must be set before using Bundle.format "
+                raise NoLocaleSet("activate() must be used before using Bundle.format "
                                   "- or, use Bundle(require_activate=False)")
             to_try = []
         else:
             to_try = list(locale_lookups(current_locale))
 
+        default_locale = self._get_default_locale()
         if default_locale is not None:
             to_try = uniquify(to_try + [default_locale])
 
@@ -246,11 +220,11 @@ class Bundle(object):
                 self._all_message_contexts[locale] = context
 
         # Shortcut next time
-        self._current_message_contexts = contexts
+        self._message_contexts_for_current_locale[current_locale] = contexts
         return contexts
 
     def format(self, message_id, args=None):
-        message_contexts = self.current_message_contexts
+        message_contexts = self.get_message_contexts_for_current_locale()
         for i, context in enumerate(message_contexts):
             try:
                 value, errors = context.format(message_id, args=args)

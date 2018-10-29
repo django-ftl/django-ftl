@@ -10,6 +10,7 @@ History
   development server autoreload.
 * Bug fix for case when invalid mode is specified in template tag.
 * Various fixes and improvements to middlewares (plus tests)
+* Thread-safe Bundle
 
 0.9 (2018-09-10)
 ++++++++++++++++

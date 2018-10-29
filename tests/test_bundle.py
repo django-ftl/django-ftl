@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+import threading
+import time
+
 import six
 from django.test import override_settings
 from django.utils.encoding import force_text
@@ -254,3 +257,65 @@ class TestLocaleLookups(TestBase):
         self.assertEqual(list(locale_lookups("en-GB, en")),
                          ["en-GB",
                           "en"])
+
+
+class TestBundleThreadSafe(TestBase):
+    def test_two_threads(self):
+        # Not a proof, but a demonstration that a single Bundle can handle
+        # threads with different locale values without getting confused.
+
+        bundle = Bundle(['tests/main.ftl'],
+                        default_locale='en',
+                        require_activate=True)
+        lock = threading.Lock()
+
+        output = []
+
+        # Primitive coordination mechanism to ensure we
+        # are getting interleaving.
+        def wait_until_output(length):
+            while True:
+                with lock:
+                    if len(output) < length:
+                        time.sleep(0)
+                    else:
+                        return
+
+        def thread_1():
+            with lock:
+                activate('en')
+                output.append((1, bundle.format('simple')))
+            wait_until_output(2)
+            with lock:
+                # Should still be in English,
+                output.append((1, bundle.format('simple')))
+
+        def thread_2():
+            # Make sure thread_1 goes first:
+            wait_until_output(1)
+            with lock:
+                activate('fr-FR')
+                output.append((2, bundle.format('simple')))
+            wait_until_output(3)
+            with lock:
+                # Should still be French
+                output.append((2, bundle.format('simple')))
+                activate('en')
+                # Should allow switching
+                output.append((2, bundle.format('simple')))
+
+        t1 = threading.Thread(target=thread_1)
+        t2 = threading.Thread(target=thread_2)
+        t1.start()
+        t2.start()
+        t1.join()
+        t2.join()
+
+        self.assertEqual(output,
+                         [
+                             (1, 'Simple'),
+                             (2, 'Facile'),
+                             (1, 'Simple'),
+                             (2, 'Facile'),
+                             (2, 'Simple'),
+                         ])
