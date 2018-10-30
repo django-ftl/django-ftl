@@ -5,6 +5,9 @@ django-ftl
 .. image:: https://badge.fury.io/py/django-ftl.svg
     :target: https://badge.fury.io/py/django-ftl
 
+.. image:: https://readthedocs.org/projects/django-ftl/badge/?version=latest&style=flat
+   :target: https://django-ftl.readthedocs.io
+
 .. image:: https://travis-ci.org/django-ftl/django-ftl.svg?branch=master
     :target: https://travis-ci.org/django-ftl/django-ftl
 

@@ -169,10 +169,10 @@ your ``LANGUAGE_CODE`` setting as a default if ``require_activate=False``, and
 this is also used as a fallback in the case of missing FTL files or messages).
 
 Please note that ``activate`` is stateful, meaning it is essentially a global
-variable that is preserved between requests. This introduces the possibility
-that one user's request changes the behavior of subsequent requests made by a
-completely different user. This problem can also affect test isolation in
-automated tests. The best way to avoid these problems is to use
+(thread local) variable that is preserved between requests. This introduces the
+possibility that one user's request changes the behavior of subsequent requests
+made by a completely different user. This problem can also affect test isolation
+in automated tests. The best way to avoid these problems is to use
 :func:`django_ftl.override` instead:
 
 
@@ -183,7 +183,7 @@ automated tests. The best way to avoid these problems is to use
    with override("en-US"):
        pass  # Code that uses this language
 
-Alternatively, ensure that :func:``deactivate`` is called at the end of a
+Alternatively, ensure that :func:`django_ftl.deactivate` is called at the end of a
 request.
 
 Using middleware
