@@ -216,6 +216,10 @@ class Bundle(object):
                         # Allow missing files otherwise
                     else:
                         context.add_messages(contents)
+                errors = context.check_messages()
+                for msg_id, error in errors:
+                    # TODO - nicer error that includes path and source line
+                    self._log_error(context, msg_id, {}, error)
                 contexts.append(context)
                 self._all_message_contexts[locale] = context
 
