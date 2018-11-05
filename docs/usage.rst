@@ -178,7 +178,7 @@ in automated tests. The best way to avoid these problems is to use
 
 .. code-block:: python
 
-   from django_ftl import activate
+   from django_ftl import override
 
    with override("en-US"):
        pass  # Code that uses this language
@@ -192,13 +192,14 @@ Using middleware
 The way you choose to activate a given language will depend on your exact setup.
 
 ``django-ftl`` comes with a few middleware that may help you automatically
-activate a locale for every request. If you were using Django's built-in i18n
-solution previously, or are still using it for some parts of your app, you may
-also be using `django.middleware.locale.LocaleMiddleware
-<https://docs.djangoproject.com/en/stable/ref/middleware/#django.middleware.locale.LocaleMiddleware>`_.
+activate a locale for every request.
 
-If you are already using ``django.middleware.locale.LocaleMiddleware``, and want
-to continue using it, the easiest solution is to add
+If you were using Django's built-in i18n solution previously, or are still using
+it for some parts of your app, you may also be using
+`django.middleware.locale.LocaleMiddleware
+<https://docs.djangoproject.com/en/stable/ref/middleware/#django.middleware.locale.LocaleMiddleware>`_.
+If that is the case, and if you want to continue using ``LocaleMiddleware``, the
+easiest solution is to add
 ``"django_ftl.middleware.activate_from_request_language_code"`` after it in your
 ``MIDDLEWARE`` setting:
 
@@ -237,9 +238,10 @@ as a starting point.
 Outside of the request-response cycle
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For code running outside of the request-response cycle (e.g. cron jobs or
-asynchronous tasks), you will not be able to use middleware, and will need some
-other way to determine the language to use. This might involve:
+If you need to generate localized text from code running outside of the
+request-response cycle (e.g. cron jobs or asynchronous tasks), you will not be
+able to use middleware, and will need some other way to determine the locale
+to use. This might involve:
 
 * a field on a model (e.g. ``User`` class) to store the locale preference.
 * for asynchronous tasks such as Celery, you could pass the locale as an
@@ -247,8 +249,8 @@ other way to determine the language to use. This might involve:
   <http://docs.celeryproject.org/en/latest/userguide/signals.html#task-prerun>`_
   might be useful.
 
-Once you have determined the locale to use, use
-:func:`django_ftl.activate` or :func:`django_ftl.override` to activate it.
+Once you have determined the locale you need, use :func:`django_ftl.activate` or
+:func:`django_ftl.override` to activate it.
 
 Using bundles from Python
 -------------------------
@@ -287,24 +289,59 @@ for more info). For this situation, you can use
 the same parameters, but doesn't generate the translation until the value is
 used in a string context, such as in template rendering.
 
-For example, the ``help_text`` of a model field should be done this way:
+For example, the ``verbose_name`` and ``help_text`` attributes of a model field
+could be done this way:
 
 .. code-block:: python
 
    from django.db import models
    from myapp.ftl_bundles import main as ftl_bundle
 
-   class MyThing(models.Model):
-       name = models.CharField(help_text=ftl_bundle.format_lazy('mything-model-name-help-text'))
+   class Kitten(models.Model):
+       name = models.CharField(
+           ftl_bundle.format_lazy('kitten-name'),
+           help_text=ftl_bundle.format_lazy('kitten-name.help-text'))
 
-If you do not do this, then the ``help_text`` attribute will end up having
-the text translated into the default language.
 
-To prevent this from happening, you can also pass ``require_activate=True``
-parameter to :class:`~django_ftl.bundles.Bundle`. As long as you do not
-put an ``activate`` call at module level in your project, this will cause the
-``Bundle`` to raise an exception if attempt to use the ``format`` method at
-module level.
+.. code-block:: ftl
+
+   # kittens.ftl
+
+   kitten-name = name
+       .help-text = Use most recent name if there have been are multiple.
+
+Note that here we have used `attributes
+<https://projectfluent.org/fluent/guide/attributes.html>`_ to combine the two
+related pieces of text into a single message
+
+If you do not use ``format_lazy``, then the ``verbose_name`` and ``help_text``
+attributes will end up always having the text translated into the default
+language.
+
+As a more effective way to prevent this from happening, you can also pass
+``require_activate=True`` parameter to :class:`~django_ftl.bundles.Bundle`. As
+long as there is no ``activate`` call at module level in your project, this will
+cause the ``Bundle`` to raise an exception if you attempt to use the ``format``
+method at module level.
+
+.. note::
+
+   If you pass ``require_activate=True``, you may have trouble with some
+   features like Django migrations which will attempt to serialize model
+   and field definitions, which forces lazy strings to be evaluated.
+
+   You can work around this problem by putting the following code in
+   your ``ftl_bundles.py`` files:
+
+   .. code-block:: python
+
+      import sys
+      import os.path
+      from django_ftl import activate
+
+      if any(os.path.split(arg)[-1] == 'manage.py' for arg in sys.argv) and 'makemigrations' in sys.argv:
+          activate('en')
+
 
 
 Aliases
@@ -417,8 +454,8 @@ object from the view:
 ``mode`` and ``bundle`` are both optional and can be set on different calls to
 ``ftlconf``, but both must be set before using ``ftlmsg``.
 
-withftl
-~~~~~~~
+``withftl``
+~~~~~~~~~~~
 
 ``withftl`` is similar to ``ftlconf`` in that its purpose is to set
 configuration data for generating messages. It differs in that:
@@ -454,8 +491,8 @@ As with ``ftlconf``, the parameters do not have to be just literal strings, they
 can refer to values in the context as most template tags can. You must supply
 one or more of ``mode``, ``bundle`` or ``language``.
 
-ftlmsg
-~~~~~~
+``ftlmsg``
+~~~~~~~~~~
 
 Finally, to actually render a message, you need to use ``ftlmsg``. It takes one
 required parameter, the message ID, and any number of keyword arguments, which

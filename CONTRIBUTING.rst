@@ -110,6 +110,7 @@ Before you submit a pull request, check that it meets these guidelines:
 Tips
 ----
 
-To run a subset of tests::
+To run a specific test or subset of tests, use dotted paths to
+module/class/method e.g.::
 
-    $ python -m unittest tests.test_django_ftl
+    $ ./runtests.py tests.test_bundle.TestBundles.test_fallback

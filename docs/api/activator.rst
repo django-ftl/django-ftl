@@ -15,8 +15,10 @@
 
 .. function:: deactivate()
 
-   De-activate the currently activated locale. All Bundles will throw exceptions
-   if you try to generate messages with them, until you activate another
+   De-activate the currently activated locale. All
+   :class:`~django_ftl.bundles.Bundle` objects will fallback to the default
+   locale if you try to generate messages with them (or throw exceptions,
+   depending on the value of ``require_activate``), until you activate another
    language.
 
 .. function:: override(locale_code)
