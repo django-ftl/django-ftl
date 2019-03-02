@@ -11,6 +11,7 @@ History
 * Bug fix for case when invalid mode is specified in template tag.
 * Various fixes and improvements to middlewares (plus tests)
 * Thread-safe Bundle
+* Method for configuring ``ftlmsg`` via context processor.
 
 0.9 (2018-09-10)
 ++++++++++++++++

@@ -377,7 +377,7 @@ your ``INSTALLED_APPS`` like this:
     )
 
 Put ``{% load ftl %}`` at the top of your template to load the template tag
-library. It provides 3 template tags, at least two of which you will need:
+library. It provides 3 template tags, at least one of which you will need:
 
 ``ftlconf``
 ~~~~~~~~~~~
@@ -512,6 +512,41 @@ Example:
       <p>{% ftlmsg 'events-greeting' username=request.user.username %}</p>
    </body>
 
+Alternative configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In some cases, use of ``ftlconf`` or ``withftl`` in templates can be tedious and
+you may want to specify configuration of mode/bundle using a more global method.
+
+An alternative is to set some configuration variables in the template context.
+You can do this using some manual method, or using a context processor. The
+variables you need to set are given by the constants below:
+
+* ``django_ftl.templatetags.ftl.MODE_VAR_NAME`` for mode.
+* ``django_ftl.templatetags.ftl.BUNDLE_VAR_NAME`` for the bundle.
+
+
+For example, the following is a context processor that will return the required
+configuration for the ``ftlmsg`` template tag.
+
+
+.. code-block:: python
+
+   import django_ftl.templatetags.ftl
+
+   from my_app.ftl_bundles import main
+
+   def ftl(request):
+       return {
+           django_ftl.templatetags.ftl.MODE_VAR_NAME: 'server',
+           django_ftl.templatetags.ftl.BUNDLE_VAR_NAME: main,
+       }
+
+
+This could be configured to be used always via your ``TEMPLATES``
+`context_processors
+<https://docs.djangoproject.com/en/stable/topics/templates/#django.template.backends.django.DjangoTemplates>`_
+setting, or invoked manually and merged into a context dictionary.
 
 
 HTML escaping
