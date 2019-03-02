@@ -382,16 +382,16 @@ library. It provides 3 template tags, at least two of which you will need:
 ``ftlconf``
 ~~~~~~~~~~~
 
-This is used to set up the configuration needed by ``ftlmsg``, namely the bundle
-to be used and the rendering mode. It should be used once near the top of a
+This is used to set up the configuration needed by ``ftlmsg``, namely the ``bundle``
+to be used and the rendering ``mode``. It should be used once near the top of a
 template (before any translations are needed), and should be used in the
 situation where most of the template will use the same bundle. For setting the
 configuration for just part of a template, use ``withftl``.
 
-The bundle is either a bundle object (passed in via the template context),
+``bundle`` is either a bundle object (passed in via the template context),
 or a string that is a dotted path to a bundle.
 
-The mode is currently limited to a single string value ``'server'``. In the
+``mode`` is currently limited to a single string value ``'server'``. In the
 future further options will be added (to enable support for client-side
 rendering/Pontoon), so it is recommended to use a context processor to add this
 value into template context, so that this single context processor can be
@@ -465,7 +465,7 @@ configuration data for generating messages. It differs in that:
 
 2. It also takes a ``language`` parameter that can be used to override the
    language, in addition to the ``mode`` and ``bundle`` parameters that
-   ``ftlconf`` take.
+   ``ftlconf`` take. This should be a string in BCP 47 format.
 
 Multiple nested ``withftl`` tags can be used, and they can be nested into a
 template that has ``ftlconf`` at the top, and their scope will be limited to the
@@ -540,7 +540,7 @@ used. For example::
   -brand-html = Ali &amp; Alisha's <b>cool</b> ice cream
 
 The ``-brand`` term can be used from any other message, and from a ``…-html``
-message it will be correctly escaped. the ``-brand-html`` term, however, can
+message it will be correctly escaped. The ``-brand-html`` term, however, can
 only be used from other ``…-html`` messages.
 
 Template considerations
