@@ -3,8 +3,8 @@
 History
 -------
 
-0.9.1 (under development)
-+++++++++++++++++++++++++
+0.9.1 (2019-03-02)
+++++++++++++++++++
 
 * Changed development autoreload mechanism to not interfere with Django's
   development server autoreload.
