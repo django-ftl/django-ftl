@@ -42,11 +42,11 @@ def ftlmsg(context, message_id, **kwargs):
     try:
         mode = context[MODE_VAR_NAME]
     except KeyError:
-        raise ValueError("No mode set for ftl - using ftlconf/withftl have been used to set mode")
+        raise ValueError("No mode set for ftl - use ftlconf/withftl to set mode")
     try:
         bundle = context[BUNDLE_VAR_NAME]
     except KeyError:
-        raise ValueError("No bundle set for ftl - using ftlconf/withftl have been used to set bundle")
+        raise ValueError("No bundle set for ftl - use ftlconf/withftl to set bundle")
     if mode == MODE_SERVER:
         return bundle.format(message_id, kwargs)
     raise AssertionError("Not reached")
