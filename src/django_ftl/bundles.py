@@ -218,7 +218,6 @@ class Bundle(object):
                         context.add_messages(contents)
                 errors = context.check_messages()
                 for msg_id, error in errors:
-                    # TODO - nicer error that includes path and source line
                     self._log_error(context, msg_id, {}, error)
                 contexts.append(context)
                 self._all_message_contexts[locale] = context
@@ -248,6 +247,7 @@ class Bundle(object):
                    message_id,
                    args,
                    exception):
+        # TODO - nicer error that includes path and source line
         ftl_logger.error("FTL exception for locale [%s], message '%s', args %r: %s",
                          ", ".join(context.locales),
                          message_id,
