@@ -16,17 +16,17 @@ MODES = [
     MODE_SERVER
 ]
 
-_MODE_VAR_NAME = '__ftl_mode'
-_BUNDLE_VAR_NAME = '__ftl_bundle'
+MODE_VAR_NAME = '__ftl_mode'
+BUNDLE_VAR_NAME = '__ftl_bundle'
 
 
 @register.simple_tag(takes_context=True)
 def ftlconf(context, mode=None, bundle=None):
     if mode is not None:
         validate_mode(mode)
-        context[_MODE_VAR_NAME] = mode
+        context[MODE_VAR_NAME] = mode
     if bundle is not None:
-        context[_BUNDLE_VAR_NAME] = resolve_bundle(bundle)
+        context[BUNDLE_VAR_NAME] = resolve_bundle(bundle)
     return ''
 
 
@@ -40,11 +40,11 @@ def resolve_bundle(bundle):
 @register.simple_tag(takes_context=True)
 def ftlmsg(context, message_id, **kwargs):
     try:
-        mode = context[_MODE_VAR_NAME]
+        mode = context[MODE_VAR_NAME]
     except KeyError:
         raise ValueError("No mode set for ftl - using ftlconf/withftl have been used to set mode")
     try:
-        bundle = context[_BUNDLE_VAR_NAME]
+        bundle = context[BUNDLE_VAR_NAME]
     except KeyError:
         raise ValueError("No bundle set for ftl - using ftlconf/withftl have been used to set bundle")
     if mode == MODE_SERVER:
@@ -76,9 +76,9 @@ class WithFtlNode(template.Node):
         bundle = None if self.bundle is None else resolve_bundle(self.bundle.resolve(context))
         new_context = {}
         if mode is not None:
-            new_context[_MODE_VAR_NAME] = mode
+            new_context[MODE_VAR_NAME] = mode
         if bundle is not None:
-            new_context[_BUNDLE_VAR_NAME] = bundle
+            new_context[BUNDLE_VAR_NAME] = bundle
         if language is not None:
             lang_ctx = django_ftl.override(language)
         else:
