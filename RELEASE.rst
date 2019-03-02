@@ -3,13 +3,15 @@ Release process
 
 * Tests, including flake8, isort and check-manifest
 
-* Update HISTORY.rst, removing "(in development)". Commit.
+* Update HISTORY.rst, removing "(in development)"
 
 * Update the version number, removing the ``-dev1`` part
 
   * setup.py
   * src/django_ftl/__init__.py
   * docs/conf.py
+
+* Commit
 
 * Ensure correct file permissions::
 
