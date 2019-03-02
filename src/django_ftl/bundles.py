@@ -152,8 +152,8 @@ class Bundle(object):
         if auto_reload is None:
             if settings.DEBUG:
                 try:
-                    import pyinotify
-                except ImportError as e:
+                    import pyinotify  # noqa
+                except ImportError:
                     ftl_logger.warning("Not using django_ftl autoreloader because pyinotify is not installed. Set `Bundle.auto_reload` or `AUTO_RELOAD_BUNDLES` to `False` to disable this warning.")
                 else:
                     auto_reload = True
