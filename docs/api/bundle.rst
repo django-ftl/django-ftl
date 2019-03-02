@@ -48,6 +48,17 @@
       (if, for example, all your text and substitutions are in scripts that go
       in the same direction).
 
+   :param bool auto_reload:
+
+      Controls whether the Bundle will attempt to detect changes in ``FTL``
+      files and reload itself. If nothing is passed, automatic behavior will be
+      used, which is:
+
+      * ``settings.AUTO_RELOAD_BUNDLES`` if it is set, otherwise:
+
+        * ``True`` if ``settings.DEBUG == True`` and pyinotify is installed
+        * ``False`` otherwise.
+
    .. method:: format(message_id, args=None)
 
       Generate a translation of the message specified by the message ID,

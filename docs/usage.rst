@@ -634,3 +634,6 @@ You can also control this manually with your ``FTL`` settings in
     FTL = {
         'AUTO_RELOAD_BUNDLES': True
     }
+
+Also, you can configure this behavior via the
+:class:`~django_ftl.bundles.Bundle` constructor.
