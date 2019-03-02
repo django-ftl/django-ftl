@@ -3,11 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import logging
 
 import django.core.signals as django_signals
-
-try:
-    import pyinotify
-except ImportError:
-    pyinotify = None
+import pyinotify
 
 
 logger = logging.getLogger(__name__)
@@ -58,6 +54,4 @@ class Reloader(object):
 
 
 def create_bundle_reloader(bundle):
-    if pyinotify is None:
-        return None
     return Reloader(bundle)
