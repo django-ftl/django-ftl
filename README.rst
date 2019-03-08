@@ -87,8 +87,8 @@ Gettext where the developer would have to create separate message strings for
 each case, because the message format is not powerful enough to allow the
 translator to add variant selection. Also, these different message strings will
 be identical in languages which don't have that feature — in other words, the
-grammatical features of all languages end up having a disproportionate affect on
-the source code and on other translators.
+grammatical features of all languages end up either having a disproportionate
+effect on the source code and on other translators, or being neglected entirely.
 
 
 Documentation
