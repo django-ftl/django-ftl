@@ -12,7 +12,7 @@ from django.utils.functional import cached_property, lazy
 from django.utils.html import SafeText
 from django.utils.html import conditional_escape as conditional_html_escape
 from django.utils.html import mark_safe as mark_html_escaped
-from fluent.context import MessageContext
+from fluent.runtime import CompilingFluentBundle as FluentBundle
 
 from .conf import get_setting
 from .utils import make_namespace
@@ -166,14 +166,14 @@ class Bundle(object):
             self._reloader = None
         self.reload()
 
-    def _make_message_context(self, locale):
-        return MessageContext([locale], use_isolating=self._use_isolating,
-                              escapers=[html_escaper])
+    def _make_fluent_bundle(self, locale):
+        return FluentBundle([locale], use_isolating=self._use_isolating,
+                            escapers=[html_escaper])
 
     def reload(self):
         with self._lock:
-            self._all_message_contexts = {}  # dict from available locale to MessageContext
-            self._message_contexts_for_current_locale = {}  # dict from chosen locale to list of MessageContext
+            self._all_fluent_bundles = {}  # dict from available locale to FluentBundle
+            self._fluent_bundles_for_current_locale = {}  # dict from chosen locale to list of FluentBundle
 
     def _get_default_locale(self):
         default_locale = self._default_locale
@@ -182,10 +182,10 @@ class Bundle(object):
 
         return get_setting('LANGUAGE_CODE')
 
-    def get_message_contexts_for_current_locale(self):
+    def get_fluent_bundles_for_current_locale(self):
         current_locale = activator.get_current_value()
         try:
-            return self._message_contexts_for_current_locale[current_locale]
+            return self._fluent_bundles_for_current_locale[current_locale]
         except KeyError:
             pass
 
@@ -201,15 +201,15 @@ class Bundle(object):
         if default_locale is not None:
             to_try = uniquify(to_try + [default_locale])
 
-        contexts = []
+        bundles = []
         for i, locale in enumerate(to_try):
             try:
-                context = self._all_message_contexts[locale]
-                if context is not None:
-                    contexts.append(context)
+                bundle = self._all_fluent_bundles[locale]
+                if bundle is not None:
+                    bundles.append(bundle)
             except KeyError:
-                # Create the MessageContext on demand
-                context = self._make_message_context(locale)
+                # Create the FluentBundle on demand
+                bundle = self._make_fluent_bundle(locale)
 
                 for path in self._paths:
                     try:
@@ -221,27 +221,27 @@ class Bundle(object):
                             raise
                         # Allow missing files otherwise
                     else:
-                        context.add_messages(contents)
-                errors = context.check_messages()
+                        bundle.add_messages(contents)
+                errors = bundle.check_messages()
                 for msg_id, error in errors:
-                    self._log_error(context, msg_id, {}, error)
-                contexts.append(context)
-                self._all_message_contexts[locale] = context
+                    self._log_error(bundle, msg_id, {}, error)
+                bundles.append(bundle)
+                self._all_fluent_bundles[locale] = bundle
 
         # Shortcut next time
-        self._message_contexts_for_current_locale[current_locale] = contexts
-        return contexts
+        self._fluent_bundles_for_current_locale[current_locale] = bundles
+        return bundles
 
     def format(self, message_id, args=None):
-        message_contexts = self.get_message_contexts_for_current_locale()
-        for i, context in enumerate(message_contexts):
+        fluent_bundles = self.get_fluent_bundles_for_current_locale()
+        for i, bundle in enumerate(fluent_bundles):
             try:
-                value, errors = context.format(message_id, args=args)
+                value, errors = bundle.format(message_id, args=args)
                 for e in errors:
-                    self._log_error(context, message_id, args, e)
+                    self._log_error(bundle, message_id, args, e)
                 return value
             except LookupError as e:
-                self._log_error(context, message_id, args, e)
+                self._log_error(bundle, message_id, args, e)
 
         # None were successful, return default
         return '???'
@@ -249,13 +249,13 @@ class Bundle(object):
     format_lazy = lazy(format, text_type)
 
     def _log_error(self,
-                   context,
+                   bundle,
                    message_id,
                    args,
                    exception):
         # TODO - nicer error that includes path and source line
         ftl_logger.error("FTL exception for locale [%s], message '%s', args %r: %s",
-                         ", ".join(context.locales),
+                         ", ".join(bundle.locales),
                          message_id,
                          args,
                          repr(exception))

@@ -3,6 +3,12 @@
 History
 -------
 
+0.10 (under development)
+++++++++++++++++++++++++
+
+* Upgraded to more recent version of fluent.syntax (based on fluent.syntax 0.12)
+
+
 0.9.1 (2019-03-02)
 ++++++++++++++++++
 
