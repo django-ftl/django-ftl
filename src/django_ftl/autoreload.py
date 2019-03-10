@@ -5,7 +5,6 @@ import logging
 import django.core.signals as django_signals
 import pyinotify
 
-
 logger = logging.getLogger(__name__)
 
 
