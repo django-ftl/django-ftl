@@ -95,8 +95,7 @@ class DjangoMessageFinder(MessageFinderBase):
 
     @cached_property
     def locale_base_dirs(self):
-        # We reverse to give priority to later apps
-        return list(reversed(get_app_locale_dirs()))
+        return get_app_locale_dirs()
 
 
 default_finder = DjangoMessageFinder()
