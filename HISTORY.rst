@@ -6,7 +6,7 @@ History
 0.10 (under development)
 ++++++++++++++++++++++++
 
-* Upgraded to more recent version of fluent.syntax (based on fluent.syntax 0.12)
+* Upgraded to more recent version of fluent.runtime (0.12 with modifications)
 
 
 0.9.1 (2019-03-02)
