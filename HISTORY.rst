@@ -8,6 +8,7 @@ History
 
 * Upgraded to more recent version of fluent.runtime (0.12 with modifications)
 * Fixed ``use_isolating`` behavior (BDI characters are now inserted for HTML messages)
+* Thread-safety fixes for loading bundles.
 
 
 0.9.1 (2019-03-02)

@@ -184,53 +184,59 @@ class Bundle(object):
 
     def get_fluent_bundles_for_current_locale(self):
         current_locale = activator.get_current_value()
+        if current_locale is None:
+            if self._require_activate:
+                raise NoLocaleSet("activate() must be used before using Bundle.format "
+                                  "- or, use Bundle(require_activate=False)")
         try:
             return self._fluent_bundles_for_current_locale[current_locale]
         except KeyError:
             pass
 
-        if current_locale is None:
-            if self._require_activate:
-                raise NoLocaleSet("activate() must be used before using Bundle.format "
-                                  "- or, use Bundle(require_activate=False)")
-            to_try = []
-        else:
-            to_try = list(locale_lookups(current_locale))
-
-        default_locale = self._get_default_locale()
-        if default_locale is not None:
-            to_try = uniquify(to_try + [default_locale])
-
-        bundles = []
-        for i, locale in enumerate(to_try):
+        # Fill out _fluent_bundles_for_current_locale and _all_fluent_bundles as
+        # necessary, but do this synchronized for all threads.
+        with self._lock:
+            # Double checked locking pattern.
             try:
-                bundle = self._all_fluent_bundles[locale]
-                if bundle is not None:
-                    bundles.append(bundle)
+                return self._fluent_bundles_for_current_locale[current_locale]
             except KeyError:
-                # Create the FluentBundle on demand
-                bundle = self._make_fluent_bundle(locale)
+                pass
 
-                for path in self._paths:
-                    try:
-                        contents = self._finder.load(locale, path, reloader=self._reloader)
-                    except FileNotFoundError:
-                        if locale == default_locale:
-                            # Can't find any FTL with the specified filename, we
-                            # want to bail early and alert developer.
-                            raise
-                        # Allow missing files otherwise
-                    else:
-                        bundle.add_messages(contents)
-                errors = bundle.check_messages()
-                for msg_id, error in errors:
-                    self._log_error(bundle, msg_id, {}, error)
-                bundles.append(bundle)
-                self._all_fluent_bundles[locale] = bundle
+            to_try = list(locale_lookups(current_locale)) if current_locale is not None else []
+            default_locale = self._get_default_locale()
+            if default_locale is not None:
+                to_try = uniquify(to_try + [default_locale])
 
-        # Shortcut next time
-        self._fluent_bundles_for_current_locale[current_locale] = bundles
-        return bundles
+            bundles = []
+            for i, locale in enumerate(to_try):
+                try:
+                    bundle = self._all_fluent_bundles[locale]
+                    if bundle is not None:
+                        bundles.append(bundle)
+                except KeyError:
+                    # Create the FluentBundle on demand
+                    bundle = self._make_fluent_bundle(locale)
+
+                    for path in self._paths:
+                        try:
+                            contents = self._finder.load(locale, path, reloader=self._reloader)
+                        except FileNotFoundError:
+                            if locale == default_locale:
+                                # Can't find any FTL with the specified filename, we
+                                # want to bail early and alert developer.
+                                raise
+                            # Allow missing files otherwise
+                        else:
+                            bundle.add_messages(contents)
+                    errors = bundle.check_messages()
+                    for msg_id, error in errors:
+                        self._log_error(bundle, msg_id, {}, error)
+                    bundles.append(bundle)
+                    self._all_fluent_bundles[locale] = bundle
+
+            # Shortcut next time
+            self._fluent_bundles_for_current_locale[current_locale] = bundles
+            return bundles
 
     def format(self, message_id, args=None):
         fluent_bundles = self.get_fluent_bundles_for_current_locale()
