@@ -13,7 +13,7 @@ not yet released, or even merged to master. Uninstall the version that just got
 installed and install our version::
 
     $ pip uninstall fluent.runtime
-    $ pip -e git+https://github.com/django-ftl/python-fluent@django-ftl-0.10#egg=fluent.runtime&subdirectory=fluent.runtime
+    $ pip install -e 'git+https://github.com/django-ftl/python-fluent@django-ftl-0.10#egg=fluent.runtime&subdirectory=fluent.runtime'
 
 For older versions of django-ftl, see below:
 
