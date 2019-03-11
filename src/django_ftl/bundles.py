@@ -127,7 +127,7 @@ html_escaper = make_namespace(
     mark_escaped=mark_html_escaped,
     escape=conditional_html_escape,
     join=lambda parts: mark_html_escaped(''.join(conditional_html_escape(p) for p in parts)),
-    use_isolating=False,
+    use_isolating=True,
 )
 
 
