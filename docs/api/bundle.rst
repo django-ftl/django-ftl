@@ -107,7 +107,7 @@ exceptions.
 
 Instead, when errors occur they are collected and then logged. Errors found in
 ``.ftl`` message files, or generated at runtime due to bad arguments, for
-example, will be logged at ``ERROR`` level use the stdlib logging framework, to
+example, will be logged at ``ERROR`` level using the stdlib logging framework, to
 the ``django_ftl.message_errors`` logger. Ensure that these errors are visible
 in your logs, and this should make these problems more visible to you.
 
