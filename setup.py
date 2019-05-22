@@ -18,6 +18,7 @@ tests_requires = [
     'flake8-future-import>=0.4.5',
     'django-functest==1.0.4',
     'check-manifest',
+    'isort',
 ]
 
 
