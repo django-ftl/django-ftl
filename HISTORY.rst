@@ -3,10 +3,17 @@
 History
 -------
 
+0.11 (under development)
+++++++++++++++++++++++++
+
+* More recent version of fluent.runtime (0.2 branch, with modifications,
+  compatible with fluent.syntax 0.15)
+* Added ``Bundle.check_all`` method.
+
 0.10 (2019-05-23)
 +++++++++++++++++
 
-* Upgraded to more recent version of fluent.runtime (0.12 with modifications)
+* Upgraded to more recent version of fluent.runtime (0.1 with modifications)
 * Fixed ``use_isolating`` behavior (BDI characters are now inserted for HTML messages)
 * Thread-safety fixes for loading bundles.
 * Corrected order of using 'locales' directories found via ``INSTALLED_APPS`` to
