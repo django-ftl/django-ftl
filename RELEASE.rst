@@ -13,12 +13,6 @@ Release process
 
 * Commit
 
-* Ensure correct file permissions::
-
-    git ls-tree --full-tree --name-only -r HEAD | xargs chmod ugo+r
-
-* Make sure all is committed
-
 * Release to PyPI::
 
     ./release.sh

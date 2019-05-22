@@ -3,8 +3,8 @@
 History
 -------
 
-0.10 (under development)
-++++++++++++++++++++++++
+0.10 (2019-05-23)
++++++++++++++++++
 
 * Upgraded to more recent version of fluent.runtime (0.12 with modifications)
 * Fixed ``use_isolating`` behavior (BDI characters are now inserted for HTML messages)
