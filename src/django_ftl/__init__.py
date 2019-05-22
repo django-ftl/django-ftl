@@ -4,7 +4,7 @@ from django.utils.decorators import ContextDecorator
 
 from .bundles import activator
 
-__version__ = '0.10'
+__version__ = '0.11.dev1'
 
 
 def activate(locale):
