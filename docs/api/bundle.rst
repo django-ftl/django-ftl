@@ -73,9 +73,11 @@
       * datetime objects (which will be formatted according to locale rules)
 
       To specify or partially specify your own formatting choices for numbers
-      and datetime objects, see the python-fluent docs for
-      ``fluent.types.fluent_number`` and ``fluent.types.fluent_datetime``.
-      (TODO LINK)
+      and datetime objects, see the ``fluent_compiler`` docs for
+      `fluent_compiler.types.fluent_number
+      <https://fluent-compiler.readthedocs.io/en/latest/usage.html#numbers>`_
+      and `fluent_compiler.types.fluent_datetime
+      <https://fluent-compiler.readthedocs.io/en/latest/usage.html#date-and-time>`_.
 
       The arguments passed in may also be strings or numbers that are used to
       select variants.
