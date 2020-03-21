@@ -6,8 +6,8 @@ History
 0.11 (under development)
 ++++++++++++++++++++++++
 
-* More recent version of fluent.runtime (0.2 branch, with modifications,
-  compatible with fluent.syntax 0.15)
+* Switch to using ``fluent_compiler`` as backend instead of experimental branch
+  in ``fluent.runtime``.
 * Added ``Bundle.check_all`` method.
 
 0.10 (2019-05-23)

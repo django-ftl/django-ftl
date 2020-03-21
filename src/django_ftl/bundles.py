@@ -12,7 +12,7 @@ from django.utils.functional import cached_property, lazy
 from django.utils.html import SafeText
 from django.utils.html import conditional_escape as conditional_html_escape
 from django.utils.html import mark_safe as mark_html_escaped
-from fluent.runtime import CompilingFluentBundle as FluentBundle
+from fluent_compiler import FluentBundle
 
 from .conf import get_setting
 from .utils import make_namespace

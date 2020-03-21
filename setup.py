@@ -91,12 +91,12 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
     install_requires=[
-        'fluent.runtime',
+        'fluent_compiler',
         'Django>=1.11',
     ],
     tests_require=tests_requires,  # for 'setup.py test'
     extras_require={
-        'develop': tests_requires,  # for 'pip install fluent.runtime[develop]'
+        'develop': tests_requires,  # for 'pip install fluent_compiler[develop]'
     },
     license="MIT",
     zip_safe=False,
