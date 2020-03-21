@@ -158,7 +158,7 @@ class TestBundles(TestBase):
                          'Score: \u20681,234,567\u2069')
         activate('fr-FR')
         self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
-                         'Points: \u20681\xa0234\xa0567\u2069')
+                         'Points: \u20681\u202f234\u202f567\u2069')
         deactivate()
         self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
                          'Score: \u20681,234,567\u2069')
@@ -174,7 +174,7 @@ class TestBundles(TestBase):
         activate('de')
         # Should get French words and formatting
         self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
-                         'Points: \u20681\xa0234\xa0567\u2069')
+                         'Points: \u20681\u202f234\u202f567\u2069')
 
     # TODO - check caches are actually working
 
