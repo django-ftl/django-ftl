@@ -6,9 +6,10 @@ History
 0.11 (under development)
 ++++++++++++++++++++++++
 
-* Switch to using ``fluent_compiler`` as backend instead of experimental branch
+* Switched to using ``fluent_compiler`` as backend instead of experimental branch
   in ``fluent.runtime``.
 * Added ``Bundle.check_all`` method.
+* Django 3.0 support
 
 0.10 (2019-05-23)
 +++++++++++++++++

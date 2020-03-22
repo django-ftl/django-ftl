@@ -1,6 +1,10 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
-from django.utils.decorators import ContextDecorator
+try:
+    from contextlib import ContextDecorator
+except ImportError:
+    # Older versions of Django have an implementation we can use
+    from django.utils.decorators import ContextDecorator
 
 from .bundles import activator
 

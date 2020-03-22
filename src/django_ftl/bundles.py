@@ -7,15 +7,26 @@ from threading import Lock, local
 
 import six
 from django.conf import settings
-from django.utils import lru_cache
 from django.utils.functional import cached_property, lazy
-from django.utils.html import SafeText
 from django.utils.html import conditional_escape as conditional_html_escape
 from django.utils.html import mark_safe as mark_html_escaped
+
 from fluent_compiler import FluentBundle
 
 from .conf import get_setting
 from .utils import make_namespace
+
+try:
+    from functools import lru_cache
+except ImportError:
+    # Older versions of Django have an implementation we can use
+    from django.utils.lru_cache import lru_cache
+
+try:
+    from django.utils.html import SafeText as SafeString
+except ImportError:
+    from django.utils.html import SafeString
+
 
 _active_locale = local()
 
@@ -80,7 +91,7 @@ def normalize_bcp47(locale):
     return locale.lower().replace('_', '-')
 
 
-@lru_cache.lru_cache(maxsize=None)
+@lru_cache(maxsize=None)
 def locale_dirs_at_path(base):
     dirs_found = [p for p in
                   [os.path.join(base, e) for e in os.listdir(base)]
@@ -122,7 +133,7 @@ activator = LanguageActivator()
 html_escaper = make_namespace(
     name="django_html_escaper",
     select=lambda message_id=None, **hints: message_id.endswith('-html'),
-    output_type=SafeText,
+    output_type=SafeString,
     mark_escaped=mark_html_escaped,
     escape=conditional_html_escape,
     join=lambda parts: mark_html_escaped(''.join(conditional_html_escape(p) for p in parts)),
