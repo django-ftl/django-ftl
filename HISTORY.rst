@@ -10,6 +10,8 @@ History
   in ``fluent.runtime``.
 * Added ``Bundle.check_all`` method.
 * Django 3.0 support
+* Dropped support for Python 3.4 (it may work, but recent versions of lxml
+  do not install on it, which made running tests harder).
 
 0.10 (2019-05-23)
 +++++++++++++++++
