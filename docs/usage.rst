@@ -552,7 +552,7 @@ setting, or invoked manually and merged into a context dictionary.
 HTML escaping
 -------------
 
-django-ftl plugs in to python-fluent's escaping mechanism and provides an
+django-ftl plugs in to ``fluent_compiler``'s escaping mechanism and provides an
 escaper out of the box that allows you to handle HTML embedded in your messages.
 To use it, give your message IDs the suffix ``-html``. For example::
 

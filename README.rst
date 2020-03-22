@@ -17,8 +17,9 @@ django-ftl
 django-ftl is a Django package for using for `Fluent <https://projectfluent.org/>`_, a
 localization system for today's world.
 
-This package builds upon the `Python implementation of Fluent
-<https://github.com/projectfluent/python-fluent>`_ and provides:
+This package builds upon `fluent.syntax
+<https://github.com/projectfluent/python-fluent>`_ and `fluent-compiler
+<https://github.com/django-ftl/fluent-compiler>`_ and provides:
 
 * A structure for setting up and managing your ``.ftl`` files.
 * Methods for switching/setting the current language.

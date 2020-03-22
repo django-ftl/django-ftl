@@ -10,17 +10,6 @@ import sys
 from setuptools import find_packages, setup
 from setuptools.command.test import test as TestCommand
 
-tests_requires = [
-    'coverage==4.4.1',
-    'mock>=1.0.1',
-    'flake8>=2.1.0',
-    'codecov>=2.0.0',
-    'flake8-future-import>=0.4.5',
-    'django-functest==1.0.4',
-    'check-manifest',
-    'isort',
-]
-
 
 class MyTestCommand(TestCommand):
 
@@ -94,10 +83,6 @@ setup(
         'fluent_compiler',
         'Django>=1.11',
     ],
-    tests_require=tests_requires,  # for 'setup.py test'
-    extras_require={
-        'develop': tests_requires,  # for 'pip install fluent_compiler[develop]'
-    },
     license="MIT",
     zip_safe=False,
     keywords='django-ftl',
