@@ -2,17 +2,19 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import six
+from django.utils.html import mark_safe
+
+from django_ftl.bundles import Bundle
+
+from .base import TestBase
 
 try:
     from django.utils.html import SafeText as SafeString
 except ImportError:
     from django.utils.html import SafeString
 
-from django.utils.html import mark_safe
 
-from django_ftl.bundles import Bundle
 
-from .base import TestBase
 
 text_type = six.text_type
 

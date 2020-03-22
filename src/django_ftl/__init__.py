@@ -1,12 +1,13 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
+from .bundles import activator
+
 try:
     from contextlib import ContextDecorator
 except ImportError:
     # Older versions of Django have an implementation we can use
     from django.utils.decorators import ContextDecorator
 
-from .bundles import activator
 
 __version__ = '0.11.dev1'
 
