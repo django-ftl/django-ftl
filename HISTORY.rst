@@ -7,7 +7,11 @@ History
 +++++++++++++++++
 
 * Switched to using ``fluent_compiler`` as backend instead of experimental branch
-  in ``fluent.runtime``.
+  in ``fluent.runtime``. This means **import changes are required**:
+
+  * ``fluent_number`` and ``fluent_date``, if you are using them, should be
+    imported from ``fluent_compiler.types`` instead of ``fluent.runtime.types``
+
 * Added ``Bundle.check_all`` method.
 * Django 3.0 support
 * Dropped support for Python 3.4 (it may work, but recent versions of lxml
