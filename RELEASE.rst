@@ -7,7 +7,6 @@ Release process
 
 * Update the version number, removing the ``-dev1`` part
 
-  * setup.py
   * src/django_ftl/__init__.py
   * docs/conf.py
 

@@ -14,8 +14,6 @@ except ImportError:
     from django.utils.html import SafeString
 
 
-
-
 text_type = six.text_type
 
 
