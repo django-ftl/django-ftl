@@ -3,8 +3,8 @@
 History
 -------
 
-0.11 (under development)
-++++++++++++++++++++++++
+0.11 (2020-02-24)
++++++++++++++++++
 
 * Switched to using ``fluent_compiler`` as backend instead of experimental branch
   in ``fluent.runtime``.
