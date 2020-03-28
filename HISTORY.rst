@@ -3,6 +3,15 @@
 History
 -------
 
+0.12 (under development)
+++++++++++++++++++++++++
+
+* Switch to the new ``fluent_compiler`` 0.2 APIs
+* Undocumented ``MessageFinderBase`` class has changed slightly: its ``load``
+  method now returns a ``fluent_compiler.resource.FtlResource`` object instead
+  of a string. If you used a custom ``finder`` for ``Bundle`` you may need to
+  update it for this change.
+
 0.11 (2020-02-24)
 +++++++++++++++++
 

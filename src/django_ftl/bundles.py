@@ -6,11 +6,14 @@ from collections import OrderedDict
 from threading import Lock, local
 
 import six
+from babel.core import UnknownLocaleError
 from django.conf import settings
 from django.utils.functional import cached_property, lazy
 from django.utils.html import conditional_escape as conditional_html_escape
 from django.utils.html import mark_safe as mark_html_escaped
-from fluent_compiler import FluentBundle
+
+from fluent_compiler.bundle import FluentBundle
+from fluent_compiler.compiler import FtlResource
 
 from .conf import get_setting
 from .utils import make_namespace
@@ -72,13 +75,11 @@ class MessageFinderBase(object):
                 continue
 
             full_path = os.path.join(locale_dir, path)
-            try:
-                with open(full_path, "rb") as f:
-                    if reloader is not None:
-                        reloader.add_watched_path(full_path)
-                    return f.read().decode('utf-8')
-
-            except (IOError, OSError):
+            if os.path.exists(full_path):
+                if reloader is not None:
+                    reloader.add_watched_path(full_path)
+                return FtlResource.from_file(full_path)
+            else:
                 tried.append(full_path)
 
         raise FileNotFoundError("Could not find locate FTL file {0}/{1}. Tried: {2}"
@@ -224,11 +225,10 @@ class Bundle(object):
                         bundles.append(bundle)
                 except KeyError:
                     # Create the FluentBundle on demand
-                    bundle = self._make_fluent_bundle(locale)
-
+                    resources = []
                     for path in self._paths:
                         try:
-                            contents = self._finder.load(locale, path, reloader=self._reloader)
+                            resource = self._finder.load(locale, path, reloader=self._reloader)
                         except FileNotFoundError:
                             if locale == default_locale:
                                 # Can't find any FTL with the specified filename, we
@@ -236,7 +236,18 @@ class Bundle(object):
                                 raise
                             # Allow missing files otherwise
                         else:
-                            bundle.add_messages(contents)
+                            resources.append(resource)
+
+                    try:
+                        bundle = FluentBundle(
+                            locale,
+                            resources,
+                            use_isolating=self._use_isolating,
+                            escapers=[html_escaper]
+                        )
+                    except UnknownLocaleError:
+                        # Try the next one:
+                        continue
                     errors = bundle.check_messages()
                     for msg_id, error in errors:
                         self._log_error(bundle, msg_id, {}, error)
@@ -270,7 +281,7 @@ class Bundle(object):
                    exception):
         # TODO - nicer error that includes path and source line
         ftl_logger.error("FTL exception for locale [%s], message '%s', args %r: %s",
-                         ", ".join(bundle.locales),
+                         ", ".join(bundle.locale),
                          message_id,
                          args,
                          repr(exception))
