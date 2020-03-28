@@ -279,9 +279,8 @@ class Bundle(object):
                    message_id,
                    args,
                    exception):
-        # TODO - nicer error that includes path and source line
         ftl_logger.error("FTL exception for locale [%s], message '%s', args %r: %s",
-                         ", ".join(bundle.locale),
+                         bundle.locale,
                          message_id,
                          args,
                          repr(exception))
