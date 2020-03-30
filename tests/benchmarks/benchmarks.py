@@ -18,9 +18,13 @@ from django_ftl.bundles import Bundle
 this_file = os.path.abspath(__file__)
 
 
-@pytest.fixture
-def bundle():
-    return Bundle(['benchmarks/benchmarks.ftl'], default_locale='en')
+# For testing changes, can use multiple runs and compare mean or OPS figures on
+# subsequent runs, or test at the same time by creating multiple `Bundle`
+# implementations and add them to `params` below.
+
+@pytest.fixture(params=[Bundle])
+def bundle(request):
+    return request.param(['benchmarks/benchmarks.ftl'], default_locale='en')
 
 
 def test_simple_string_default_locale_present(bundle, benchmark):
