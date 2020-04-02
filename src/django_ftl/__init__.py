@@ -9,7 +9,7 @@ except ImportError:
     from django.utils.decorators import ContextDecorator
 
 
-__version__ = '0.11'
+__version__ = '0.12'
 
 
 def activate(locale):

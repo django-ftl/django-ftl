@@ -3,8 +3,8 @@
 History
 -------
 
-0.12 (under development)
-++++++++++++++++++++++++
+0.12 (2020-04-02)
++++++++++++++++++
 
 * Switch to the new APIs available in ``fluent_compiler`` 0.2.
 * Performance improvements - large reduction in the percentage overhead
@@ -14,7 +14,7 @@ History
   of a string. If you used a custom ``finder`` for ``Bundle`` you may need to
   update it for this change.
 
-0.11 (2020-02-24)
+0.11 (2020-03-24)
 +++++++++++++++++
 
 * Switched to using ``fluent_compiler`` as backend instead of experimental branch
