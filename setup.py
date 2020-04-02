@@ -71,7 +71,7 @@ history = history.replace(u'.. :changelog:', u'')
 setup(
     name='django-ftl',
     version=version,
-    description="""Django bindings for 'fluent', the localization system for today's world.""",
+    description="""Django implementation for Fluent, the localization system for today's world.""",
     long_description=readme + u'\n\n' + history,
     author='Luke Plant',
     author_email='L.Plant.98@cantab.net',
@@ -80,7 +80,7 @@ setup(
     package_dir={"": "src"},
     include_package_data=True,
     install_requires=[
-        'fluent_compiler',
+        'fluent_compiler>=0.2',
         'Django>=1.11',
     ],
     license="MIT",
@@ -91,6 +91,9 @@ setup(
         'Development Status :: 4 - Beta',
         'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
+        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
