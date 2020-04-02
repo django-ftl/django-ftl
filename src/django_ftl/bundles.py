@@ -6,11 +6,13 @@ from collections import OrderedDict
 from threading import Lock, local
 
 import six
+from babel.core import UnknownLocaleError
 from django.conf import settings
 from django.utils.functional import cached_property, lazy
 from django.utils.html import conditional_escape as conditional_html_escape
 from django.utils.html import mark_safe as mark_html_escaped
-from fluent_compiler import FluentBundle
+from fluent_compiler.compiler import compile_messages
+from fluent_compiler.resource import FtlResource
 
 from .conf import get_setting
 from .utils import make_namespace
@@ -72,13 +74,11 @@ class MessageFinderBase(object):
                 continue
 
             full_path = os.path.join(locale_dir, path)
-            try:
-                with open(full_path, "rb") as f:
-                    if reloader is not None:
-                        reloader.add_watched_path(full_path)
-                    return f.read().decode('utf-8')
-
-            except (IOError, OSError):
+            if os.path.exists(full_path):
+                if reloader is not None:
+                    reloader.add_watched_path(full_path)
+                return FtlResource.from_file(full_path)
+            else:
                 tried.append(full_path)
 
         raise FileNotFoundError("Could not find locate FTL file {0}/{1}. Tried: {2}"
@@ -175,14 +175,10 @@ class Bundle(object):
             self._reloader = None
         self.reload()
 
-    def _make_fluent_bundle(self, locale):
-        return FluentBundle([locale], use_isolating=self._use_isolating,
-                            escapers=[html_escaper])
-
     def reload(self):
         with self._lock:
-            self._all_fluent_bundles = {}  # dict from available locale to FluentBundle
-            self._fluent_bundles_for_current_locale = {}  # dict from chosen locale to list of FluentBundle
+            self._message_function_cache = {}
+            self._compiled_unit_for_locale = {}
 
     def _get_default_locale(self):
         default_locale = self._default_locale
@@ -191,86 +187,112 @@ class Bundle(object):
 
         return get_setting('LANGUAGE_CODE')
 
-    def get_fluent_bundles_for_current_locale(self):
-        current_locale = activator.get_current_value()
-        if current_locale is None:
-            if self._require_activate:
-                raise NoLocaleSet("activate() must be used before using Bundle.format "
-                                  "- or, use Bundle(require_activate=False)")
+    def get_compiled_unit_for_locale_list(self, locales):
+        for locale in locales:
+            try:
+                unit = self.get_compiled_unit_for_locale(locale)
+            except UnknownLocaleError:
+                continue
+            yield unit
+
+    def get_compiled_unit_for_locale(self, locale):
         try:
-            return self._fluent_bundles_for_current_locale[current_locale]
+            return self._compiled_unit_for_locale[locale]
         except KeyError:
             pass
 
-        # Fill out _fluent_bundles_for_current_locale and _all_fluent_bundles as
+        # Fill out _compiled_unit_for_locale
         # necessary, but do this synchronized for all threads.
         with self._lock:
             # Double checked locking pattern.
             try:
-                return self._fluent_bundles_for_current_locale[current_locale]
+                return self._compiled_unit_for_locale[locale]
             except KeyError:
                 pass
 
-            to_try = list(locale_lookups(current_locale)) if current_locale is not None else []
+            # Do the compilation:
+            resources = []
+            for path in self._paths:
+                try:
+                    resource = self._finder.load(locale, path, reloader=self._reloader)
+                except FileNotFoundError:
+                    pass
+                    if locale == self._get_default_locale():
+                        # Can't find any FTL with the specified filename, we
+                        # want to bail early and alert developer.
+                        raise
+                    # Allow missing files otherwise
+                else:
+                    resources.append(resource)
+
+            unit = compile_messages(
+                locale,
+                resources,
+                use_isolating=self._use_isolating,
+                escapers=[html_escaper]
+            )
+            errors = unit.errors
+            for msg_id, error in errors:
+                self._log_error(locale, msg_id, {}, error)
+            self._compiled_unit_for_locale[locale] = unit
+            return unit
+
+    def format(self, message_id, args=None):
+        # This is the hot path for performance, so we try to optimise,
+        # especially the 'happy path' which will hit caches.
+
+        # FAST PATH:
+        # Avoid Activator.get_current_value() here because it adds measurable
+        # overhead.
+        current_locale = getattr(_active_locale, 'value', None)
+        errors = []
+        try:
+            func = self._message_function_cache[current_locale, message_id]
+        except KeyError:
+            # SLOW PATH:
+            if current_locale is None:
+                if self._require_activate:
+                    raise NoLocaleSet("activate() must be used before using Bundle.format "
+                                      "- or, use Bundle(require_activate=False)")
+
+            # current_locale can be `None`, and we will create cache entries
+            # against (None, message_id). This gives us small performance
+            # improvement by moving `if current_locale is None` check out of the
+            # hot path.
+            locale_to_use = current_locale or self._get_default_locale()
+            to_try = list(locale_lookups(locale_to_use))
             default_locale = self._get_default_locale()
             if default_locale is not None:
                 to_try = uniquify(to_try + [default_locale])
 
-            bundles = []
-            for i, locale in enumerate(to_try):
+            func = None
+            for unit in self.get_compiled_unit_for_locale_list(to_try):
                 try:
-                    bundle = self._all_fluent_bundles[locale]
-                    if bundle is not None:
-                        bundles.append(bundle)
-                except KeyError:
-                    # Create the FluentBundle on demand
-                    bundle = self._make_fluent_bundle(locale)
+                    func = unit.message_functions[message_id]
+                    break
+                except LookupError as e:
+                    self._log_error(unit.locale, message_id, args, e)
+                    continue
+            if func is None:
+                func = _missing_message
+            self._message_function_cache[current_locale, message_id] = func
+            # SLOW PATH END
 
-                    for path in self._paths:
-                        try:
-                            contents = self._finder.load(locale, path, reloader=self._reloader)
-                        except FileNotFoundError:
-                            if locale == default_locale:
-                                # Can't find any FTL with the specified filename, we
-                                # want to bail early and alert developer.
-                                raise
-                            # Allow missing files otherwise
-                        else:
-                            bundle.add_messages(contents)
-                    errors = bundle.check_messages()
-                    for msg_id, error in errors:
-                        self._log_error(bundle, msg_id, {}, error)
-                    bundles.append(bundle)
-                    self._all_fluent_bundles[locale] = bundle
-
-            # Shortcut next time
-            self._fluent_bundles_for_current_locale[current_locale] = bundles
-            return bundles
-
-    def format(self, message_id, args=None):
-        fluent_bundles = self.get_fluent_bundles_for_current_locale()
-        for i, bundle in enumerate(fluent_bundles):
-            try:
-                value, errors = bundle.format(message_id, args=args)
-                for e in errors:
-                    self._log_error(bundle, message_id, args, e)
-                return value
-            except LookupError as e:
-                self._log_error(bundle, message_id, args, e)
-
-        # None were successful, return default
-        return '???'
+        value = func(args, errors)
+        if errors:
+            for e in errors:
+                self._log_error(current_locale, message_id, args, e)
+        return value
 
     format_lazy = lazy(format, text_type)
 
     def _log_error(self,
-                   bundle,
+                   locale,
                    message_id,
                    args,
                    exception):
-        # TODO - nicer error that includes path and source line
         ftl_logger.error("FTL exception for locale [%s], message '%s', args %r: %s",
-                         ", ".join(bundle.locales),
+                         locale,
                          message_id,
                          args,
                          repr(exception))
@@ -285,6 +307,10 @@ class Bundle(object):
                 for b in bundles:
                     errors.extend(b.check_messages())
         return errors
+
+
+def _missing_message(args, errors):
+    return '???'
 
 
 def locale_lookups(locale):

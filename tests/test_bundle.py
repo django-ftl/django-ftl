@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+import os.path
 import threading
 import time
 
 import six
 from django.test import override_settings
 from django.utils.encoding import force_text
+from testfixtures import LogCapture
 
 from django_ftl import activate, deactivate, override
 from django_ftl.bundles import Bundle, FileNotFoundError, NoLocaleSet, locale_lookups
@@ -176,8 +178,6 @@ class TestBundles(TestBase):
         self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
                          'Points: \u20681\u202f234\u202f567\u2069')
 
-    # TODO - check caches are actually working
-
     def test_lazy(self):
         bundle = Bundle(['tests/main.ftl'], default_locale='en')
 
@@ -227,6 +227,33 @@ class TestBundles(TestBase):
         bundle_2 = Bundle(['tests/main.ftl'], default_locale='en', use_isolating=False)
         self.assertEqual(bundle_2.format('with-argument', {'user': 'Horace'}),
                          'Hello to Horace.')
+
+    def test_logged_runtime_errors(self):
+        bundle = Bundle(['tests/main.ftl'], default_locale='en')
+
+        def run(locale_expected):
+            with LogCapture() as log:
+                self.assertEqual(bundle.format('with-argument', {}),
+                                 'Hello to \u2068user\u2069.')
+                this_file = os.path.abspath(__file__)
+                ftl_filename = os.path.normpath(os.path.join(
+                    this_file, '..', 'locales', 'en', 'tests', 'main.ftl'
+                ))
+                log.check_present(
+                    (
+                        'django_ftl.message_errors',
+                        'ERROR',
+                        "FTL exception for locale [%s], message 'with-argument', args {}: FluentReferenceError(%s'%s:5:28: Unknown external: user',)" % (locale_expected, 'u' if six.PY2 else '', ftl_filename)
+                    )
+                )
+
+        # Run multiple times, because second time has a different path due to caching
+        run('None')
+        run('None')
+
+        activate('en')
+        run('en')
+        run('en')
 
 
 class TestLocaleLookups(TestBase):

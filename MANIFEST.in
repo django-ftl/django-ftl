@@ -1,7 +1,7 @@
 include *.rst
 include *.py
 include LICENSE
-include tox.ini
+include *.ini
 include release.sh
 include requirements*.txt
 include .coveragerc

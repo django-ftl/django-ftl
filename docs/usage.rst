@@ -303,7 +303,7 @@ could be done this way:
            help_text=ftl_bundle.format_lazy('kitten-name.help-text'))
 
 
-.. code-block:: ftl
+::
 
    # kittens.ftl
 

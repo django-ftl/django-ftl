@@ -3,6 +3,17 @@
 History
 -------
 
+0.12 (under development)
+++++++++++++++++++++++++
+
+* Switch to the new APIs available in ``fluent_compiler`` 0.2.
+* Performance improvements - large reduction in the percentage overhead
+  introduced by django-ftl (compared to raw ``fluent_compiler`` performance).
+* Undocumented ``MessageFinderBase`` class has changed slightly: its ``load``
+  method now returns a ``fluent_compiler.resource.FtlResource`` object instead
+  of a string. If you used a custom ``finder`` for ``Bundle`` you may need to
+  update it for this change.
+
 0.11 (2020-02-24)
 +++++++++++++++++
 
