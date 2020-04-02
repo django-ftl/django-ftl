@@ -111,7 +111,6 @@ informs them how many new events have happened on the site since their last
 visit. It might have an English ``myapp/main.ftl`` file that looks like this:
 
 .. literalinclude:: ../tests/locales/en/tests/docs.ftl
-   :language: ftl
 
 In this ``.ftl`` file, ``events-title``, ``events-greeting`` and
 ``events-new-events-info`` are Fluent message IDs. Note that we have used
