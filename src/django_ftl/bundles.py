@@ -298,14 +298,10 @@ class Bundle(object):
                          repr(exception))
 
     def check_all(self, locales):
-        from . import override
-
         errors = []
         for l in locales:
-            with override(l):
-                bundles = self.get_fluent_bundles_for_current_locale()
-                for b in bundles:
-                    errors.extend(b.check_messages())
+            unit = self.get_compiled_unit_for_locale(l)
+            errors.extend(unit.errors)
         return errors
 
 

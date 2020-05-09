@@ -3,6 +3,11 @@
 History
 -------
 
+0.12.1 (2020-05-09)
++++++++++++++++++++
+
+* Fixed broken (and undocumented) ``check_all`` method.
+
 0.12 (2020-04-02)
 +++++++++++++++++
 

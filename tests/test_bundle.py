@@ -8,6 +8,7 @@ import time
 import six
 from django.test import override_settings
 from django.utils.encoding import force_text
+from fluent_compiler.errors import FluentJunkFound
 from testfixtures import LogCapture
 
 from django_ftl import activate, deactivate, override
@@ -254,6 +255,17 @@ class TestBundles(TestBase):
         activate('en')
         run('en')
         run('en')
+
+    def test_check_all(self):
+        bundle = Bundle(['tests/errors.ftl'], default_locale='en')
+        errors = bundle.check_all(['en'])
+        assert len(errors) == 2
+        assert errors[0][0] is None
+        assert isinstance(errors[0][1], FluentJunkFound)
+
+        assert errors[1][0] == 'this-has-an-error'
+        assert isinstance(errors[1][1], TypeError)
+        assert errors[1][1].args == ("NUMBER() got an unexpected keyword argument 'xxx'",)
 
 
 class TestLocaleLookups(TestBase):
