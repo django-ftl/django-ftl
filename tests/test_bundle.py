@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import os.path
+import sys
 import threading
 import time
 
@@ -244,7 +245,12 @@ class TestBundles(TestBase):
                     (
                         'django_ftl.message_errors',
                         'ERROR',
-                        "FTL exception for locale [%s], message 'with-argument', args {}: FluentReferenceError(%s'%s:5:28: Unknown external: user',)" % (locale_expected, 'u' if six.PY2 else '', ftl_filename)
+                        "FTL exception for locale [%s], message 'with-argument', args {}: FluentReferenceError(%s'%s:5:28: Unknown external: user'%s)" % (
+                            locale_expected,
+                            'u' if six.PY2 else '',
+                            ftl_filename,
+                            ',' if sys.version_info < (3, 7) else ''
+                        )
                     )
                 )
 
