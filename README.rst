@@ -8,11 +8,8 @@ django-ftl
 .. image:: https://readthedocs.org/projects/django-ftl/badge/?version=latest&style=flat
    :target: https://django-ftl.readthedocs.io
 
-.. image:: https://travis-ci.org/django-ftl/django-ftl.svg?branch=master
-    :target: https://travis-ci.org/django-ftl/django-ftl
-
-.. image:: https://codecov.io/gh/django-ftl/django-ftl/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/django-ftl/django-ftl
+.. image:: https://github.com/django-ftl/django-ftl/workflows/Python%20package/badge.svg
+   :target: https://github.com/django-ftl/django-ftl/actions?query=workflow%3A%22Python+package%22+branch%3Amaster
 
 django-ftl is a Django package for using for `Fluent <https://projectfluent.org/>`_, a
 localization system for today's world.
