@@ -3,6 +3,12 @@
 History
 -------
 
+0.13 (unreleased)
++++++++++++++++++
+
+* Dropped support for Python 2.7
+* Added support for Django 3.2
+
 0.12.1 (2020-05-09)
 +++++++++++++++++++
 
