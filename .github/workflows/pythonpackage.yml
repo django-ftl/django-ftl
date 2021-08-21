@@ -36,10 +36,10 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ matrix.python }}-${{ hashFiles('requirements*.txt') }}
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements*.txt') }}
     - name: Install dependencies
       run: |
-        pip install ${{ matrix.django-version }}
+        pip install Django==${{ matrix.django-version }}
         pip install -e .
         pip install -r requirements-test.txt
     - name: Tests
@@ -57,7 +57,7 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ matrix.python }}-${{ hashFiles('requirements*.txt') }}
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements*.txt') }}
     - name: Install dependencies
       run: |
         pip install flake8
@@ -75,7 +75,7 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ matrix.python }}-${{ hashFiles('requirements*.txt') }}
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements*.txt') }}
     - name: Install dependencies
       run: |
         pip install isort
