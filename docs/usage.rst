@@ -551,6 +551,12 @@ setting, or invoked manually and merged into a context dictionary.
 HTML escaping
 -------------
 
+If your messages are plain text, and you use Django templates, then messages
+will be HTML-escaped by `Django’s automatic escaping mechanism
+<https://docs.djangoproject.com/en/stable/ref/templates/language/#automatic-html-escaping>`_
+as normal, as there is nothing more to worry about. If you need to include HTML
+fragments in the messages (e.g. to make some text bold or into a link), read on.
+
 django-ftl plugs in to ``fluent_compiler``'s escaping mechanism and provides an
 escaper out of the box that allows you to handle HTML embedded in your messages.
 To use it, give your message IDs the suffix ``-html``. For example::
