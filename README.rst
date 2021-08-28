@@ -12,7 +12,7 @@ django-ftl
    :target: https://github.com/django-ftl/django-ftl/actions?query=workflow%3A%22Python+package%22+branch%3Amaster
 
 django-ftl is a Django package for using for `Fluent <https://projectfluent.org/>`_, a
-localization system for today's world. (It would have been called django-fluent but that was 
+localization system for today's world. (It would have been called django-fluent but that was
 already `taken <https://django-fluent.org/>`_).
 
 This package builds upon `fluent-compiler
@@ -98,8 +98,18 @@ https://django-ftl.readthedocs.io.
 Status
 ------
 
-This package should be considered a beta. While it has a good feature set, test
-suite and docs, it has not been used a huge amount in production.
+The library is now pretty stable, with a full test suite, no major missing
+features and no major breaking changes planned.
+
+It has seen real-world usage in:
+
+* `Firefox Relay <https://relay.firefox.com/>`_ - see `fx-private-relay GitHub
+  project <https://github.com/mozilla/fx-private-relay>`_.
+* `Learn Scripture <https://learnscripture.net/>`_ - the original project it was
+  created for, see the `GitLab learnscripture.net project
+  <https://gitlab.com/learnscripture/learnscripture.net>`_.
+* Probably a fair number of other projects, but I don’t know about them…
+
 
 Credits
 -------
