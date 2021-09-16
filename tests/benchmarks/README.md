@@ -6,6 +6,6 @@ Then, run the benchmarks as a script:
 
     $ ./tests/benchmarks/benchmarks.py
 
-You can also run them using py.test:
+You can also run them using pytest:
 
-    $ py.test --benchmark-warmup=on tests/benchmarks/benchmarks.py
+    $ pytest --benchmark-warmup=on tests/benchmarks/benchmarks.py

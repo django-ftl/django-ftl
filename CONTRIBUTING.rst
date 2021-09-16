@@ -86,10 +86,10 @@ Ready to contribute? Here's how to set up ``django-ftl`` for local development.
         $ pip install tox
         $ tox
 
-    You can also run tests with py.test (although it is much slower for some reason)::
+    You can also run tests with pytest, which has lots of improvements::
 
-        $ pip install pytest
-        $ py.test
+        $ pip install pytest pytest-django
+        $ pytest
 
 6. Commit your changes and push your branch to GitHub::
 

@@ -48,4 +48,4 @@ def test_simple_string_present_in_fallback(bundle, benchmark):
 if __name__ == '__main__':
     # You can execute this file directly, and optionally add more py.test args
     # to the command line (e.g. -k for keyword matching certain tests).
-    subprocess.check_call(["py.test", "--benchmark-warmup=on", "--benchmark-sort=name", this_file] + sys.argv[1:])
+    subprocess.check_call(["pytest", "--benchmark-warmup=on", "--benchmark-sort=name", this_file] + sys.argv[1:])
