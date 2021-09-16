@@ -28,8 +28,9 @@
       You may pass keyword argument ``default_locale`` (as a BCP47 string e.g.
       "en-US"), which will be used as a fallback if an unavailable locale is
       activated, or if a message ID is not found in the current locale. By
-      default, your ``LANGUAGE_CODE`` setting will be used (see :ref:`settings`)
-      if nothing is passed.
+      default, your ``LANGUAGE_CODE`` setting will be used if nothing is passed
+      (see `Django docs for LANGUAGE_CODE
+      <https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-LANGUAGE_CODE>`_).
 
    :param bool require_activate:
 
@@ -58,6 +59,12 @@
 
         * ``True`` if ``settings.DEBUG == True`` and pyinotify is installed
         * ``False`` otherwise.
+
+   :param dict functions:
+
+      A dictionary of custom functions that will be made available to messages
+      in the bundle, as per the `fluent-compiler docs on Custom Functions
+      <https://fluent-compiler.readthedocs.io/en/latest/functions.html#custom-functions>`_.
 
    .. method:: format(message_id, args=None)
 

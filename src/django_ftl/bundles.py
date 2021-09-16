@@ -141,12 +141,16 @@ html_escaper = make_namespace(
 
 
 class Bundle(object):
-    def __init__(self, paths,
-                 finder=default_finder,
-                 default_locale=None,
-                 use_isolating=True,
-                 require_activate=False,
-                 auto_reload=None):
+    def __init__(
+            self,
+            paths,
+            default_locale=None,
+            use_isolating=True,
+            require_activate=False,
+            auto_reload=None,
+            finder=default_finder,
+            functions=None,
+    ):
 
         self._paths = paths
         self._finder = finder
@@ -154,6 +158,7 @@ class Bundle(object):
         self._use_isolating = use_isolating
         self._require_activate = require_activate
         self._lock = Lock()
+        self._functions = functions or {}
 
         if auto_reload is None:
             auto_reload = get_setting('AUTO_RELOAD_BUNDLES', None)
@@ -229,7 +234,8 @@ class Bundle(object):
                 locale,
                 resources,
                 use_isolating=self._use_isolating,
-                escapers=[html_escaper]
+                escapers=[html_escaper],
+                functions=self._functions,
             )
             errors = unit.errors
             for msg_id, error in errors:

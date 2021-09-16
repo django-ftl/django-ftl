@@ -8,6 +8,7 @@ History
 
 * Dropped support for Python 2.7
 * Added support for Django 3.2
+* Added support for custom functions to the Bundle constructor
 
 0.12.1 (2020-05-09)
 +++++++++++++++++++

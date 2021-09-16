@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import os.path
+import platform
 import sys
 import threading
 import time
@@ -272,6 +273,13 @@ class TestBundles(TestBase):
         assert errors[1][0] == 'this-has-an-error'
         assert isinstance(errors[1][1], TypeError)
         assert errors[1][1].args == ("NUMBER() got an unexpected keyword argument 'xxx'",)
+
+    def test_custom_functions(self):
+        def os_name():
+            return platform.system()
+
+        bundle = Bundle(['tests/functions.ftl'], default_locale='en', functions={'OSNAME': os_name})
+        assert bundle.format('hello') == 'Hello Linux user!'
 
 
 class TestLocaleLookups(TestBase):
