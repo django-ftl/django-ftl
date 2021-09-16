@@ -39,10 +39,7 @@ def resolve_bundle(bundle):
 
 @register.simple_tag(takes_context=True)
 def ftlmsg(context, message_id, **kwargs):
-    try:
-        mode = context[MODE_VAR_NAME]
-    except KeyError:
-        raise ValueError("No mode set for ftl - use ftlconf/withftl to set mode")
+    mode = context.get(MODE_VAR_NAME, MODE_SERVER)
     try:
         bundle = context[BUNDLE_VAR_NAME]
     except KeyError:

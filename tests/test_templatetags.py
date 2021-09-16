@@ -42,7 +42,7 @@ class TestFtlConfTag(TestBase):
         self.assertEqual(t.render(Context({})).strip(),
                          "Simple")
 
-    def test_missing(self):
+    def test_missing_conf(self):
         t = Template("""
         {% load ftl %}
         {% ftlconf mode='server' bundle='tests.test_templatetags.main_bundle' %}
@@ -50,6 +50,15 @@ class TestFtlConfTag(TestBase):
         """)
         self.assertEqual(t.render(Context({})).strip(),
                          "???")
+
+    def test_missing_mode_should_be_tolerated(self):
+        t = Template("""
+        {% load ftl %}
+        {% ftlconf bundle='tests.test_templatetags.main_bundle' %}
+        {% ftlmsg 'simple' %}
+        """)
+        self.assertEqual(t.render(Context({})).strip(),
+                         "Simple")
 
     def test_args(self):
         t = Template("""

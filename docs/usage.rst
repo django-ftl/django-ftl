@@ -381,54 +381,29 @@ library. It provides 3 template tags, at least one of which you will need:
 ``ftlconf``
 ~~~~~~~~~~~
 
-This is used to set up the configuration needed by ``ftlmsg``, namely the ``bundle``
-to be used and the rendering ``mode``. It should be used once near the top of a
-template (before any translations are needed), and should be used in the
-situation where most of the template will use the same bundle. For setting the
-configuration for just part of a template, use ``withftl``.
+This is used to set up the configuration needed by ``ftlmsg``, namely the
+``bundle`` to be used. It should be used once near the top of a template (before
+any translations are needed), and should be used in the situation where most of
+the template will use the same bundle. For setting the configuration for just
+part of a template, use ``withftl``.
 
-``bundle`` is either a bundle object (passed in via the template context),
-or a string that is a dotted path to a bundle.
+The ``bundle`` argument is either a bundle object (passed in via the template
+context), or a string that is a dotted path to a bundle.
 
-``mode`` is currently limited to a single string value ``'server'``. In the
-future further options will be added (to enable support for client-side
-rendering/Pontoon), so it is recommended to use a context processor to add this
-value into template context, so that this single context processor can be
-changed in future to make use of those features.
+(An optional ``mode`` may also be passed, which is currently limited to a single
+string value ``'server'`` which is also the default value, so it is currently
+not very useful! In the future further options may be added, mainly with the
+idea of enabling client-side rendering of the messages.)
 
 Example:
 
 .. code-block:: html+django
 
    {% load ftl %}
-   {% ftlconf mode='server' bundle='myapp.ftl_bundles.main' %}
+   {% ftlconf bundle='myapp.ftl_bundles.main' %}
 
 
-Example where we use a context processor to set the mode, and pass in the bundle
-object from the view:
-
-.. code-block:: python
-
-   # In settings.py
-
-   TEMPLATE = [
-      {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'OPTIONS': {
-            'context_processors': [
-               # ...
-               'myapp.context_processors.ftl_mode',
-            ]
-        },
-      }
-   ]
-
-.. code-block:: python
-
-   # myapp/context_processors.py
-
-   def ftl_mode(request):
-       return {'ftl_mode': 'server'}
+Example where we pass in the bundle object from the view:
 
 
 .. code-block:: python
@@ -447,11 +422,8 @@ object from the view:
    {# myapp/events.html #}
 
    {% load ftl %}
-   {% ftlconf mode=ftl_mode bundle=ftl_bundle %}
+   {% ftlconf bundle=ftl_bundle %}
 
-
-``mode`` and ``bundle`` are both optional and can be set on different calls to
-``ftlconf``, but both must be set before using ``ftlmsg``.
 
 ``withftl``
 ~~~~~~~~~~~
@@ -463,7 +435,7 @@ configuration data for generating messages. It differs in that:
    ``endwithftl`` node, which is required.
 
 2. It also takes a ``language`` parameter that can be used to override the
-   language, in addition to the ``mode`` and ``bundle`` parameters that
+   language, in addition to the ``bundle`` and ``mode`` parameters that
    ``ftlconf`` take. This should be a string in BCP 47 format.
 
 Multiple nested ``withftl`` tags can be used, and they can be nested into a
@@ -475,7 +447,6 @@ Example:
 .. code-block:: html+django
 
    {% load ftl %}
-   {% ftlconf mode='server' %}
 
    {% withftl bundle='myapp.ftl_bundles.main' %}
       {% ftlmsg 'events-title' %}
@@ -503,7 +474,7 @@ Example:
 .. code-block:: html+django
 
    {% load ftl %}
-   {% ftlconf mode='server' bundle='myapp.ftl_bundles.main' %}
+   {% ftlconf bundle='myapp.ftl_bundles.main' %}
 
    <body>
       <h1>{% ftlmsg 'events-title' %}</h1>

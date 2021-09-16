@@ -9,6 +9,9 @@ History
 * Dropped support for Python 2.7
 * Added support for Django 3.2
 * Added support for custom functions to the Bundle constructor
+* Dropped useless mandatory configuration of ``mode`` parameter for template
+  tags - it now defaults to ``'server'`` which is the only allowed option
+  anyway.
 
 0.12.1 (2020-05-09)
 +++++++++++++++++++
