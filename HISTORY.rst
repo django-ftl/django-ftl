@@ -3,7 +3,7 @@
 History
 -------
 
-0.13 (unreleased)
+0.13 (2021-09-16)
 +++++++++++++++++
 
 * Dropped support for Python 2.7
