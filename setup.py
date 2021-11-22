@@ -83,6 +83,7 @@ setup(
         'fluent_compiler>=0.2',
         'Django>=1.11',
     ],
+    python_requires='>=3.5',
     license="MIT",
     zip_safe=False,
     keywords='django-ftl',
