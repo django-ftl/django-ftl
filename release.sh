@@ -3,9 +3,9 @@
 set -x
 
 # Basic tests
-check-manifest || exit 1
-isort || exit 1
-flake8 || exit 1
+pre-commit run check-manifest --all-files
+pre-commit run isort --all-files
+pre-commit run flake8 --all-files
 pytest || exit 1
 
 umask 000
@@ -17,4 +17,4 @@ find . -type d | xargs chmod ugo+rx
 
 VERSION=$(./setup.py --version) || exit 1
 
-twine upload dist/django-ftl-$VERSION.tar.gz dist/django_ftl-$VERSION-py2.py3-none-any.whl || exit 1
+twine upload dist/django-ftl-$VERSION.tar.gz dist/django_ftl-$VERSION-py3-none-any.whl || exit 1
