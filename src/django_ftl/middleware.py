@@ -1,7 +1,15 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 from django.conf import settings
-from django.utils.translation import LANGUAGE_SESSION_KEY
+try:
+    from django.utils.translation import LANGUAGE_SESSION_KEY
+except ImportError:
+    LANGUAGE_SESSION_KEY = None
+
+try:
+    from django.utils.translation import get_language_from_request
+except ImportError:
+    get_language_from_request = None
 
 from django_ftl import override
 
@@ -9,11 +17,15 @@ from django_ftl import override
 def activate_from_request_session(get_response):
     """
     Middleware that can be placed after django.middleware.session.SessionMiddleware,
-    used in conjunction with `set_language` Django view, and uses
-    request.session[LANGUAGE_SESSION_KEY] for Fluent translations.
+    used in conjunction with `set_language` Django view.
+    Internally uses request.session and/or cookies for Fluent translations.
     """
     def middleware(request):
-        language_code = request.session.get(LANGUAGE_SESSION_KEY, settings.LANGUAGE_CODE)
+        if LANGUAGE_SESSION_KEY is not None:
+            # Django < 4
+            language_code = request.session.get(LANGUAGE_SESSION_KEY, settings.LANGUAGE_CODE)
+        else:
+            language_code = get_language_from_request(request)
         request.LANGUAGE_CODE = language_code
         with override(language_code):
             return get_response(request)

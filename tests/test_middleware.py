@@ -29,7 +29,7 @@ def simple_template_response_view(request):
 class TestActivateFromSessionMiddleware(WebTestBase):
     def test_default(self):
         self.get_url('test_middleware.simple_view')
-        self.assertTextPresent("A Web Page Title")
+        self.assertTextPresent("A Web Page Title", within="title")
         self.assertTextPresent("The current language code is en")
 
     def test_set_language(self):
@@ -49,7 +49,7 @@ class TestActivateFromSessionMiddleware(WebTestBase):
         # We are checking that the middleware mechanism that finalizes and
         # renders templates works with our use of an 'override' context manager.
         self.get_url('test_middleware.simple_view_template_response')
-        self.assertTextPresent("A Web Page Title")
+        self.assertTextPresent("A Web Page Title", within="title")
         self.assertTextPresent("The current language code is en")
         self.fill({'[name=language]': 'tr'})
         self.submit('[type=submit]')
@@ -66,7 +66,7 @@ class TestActivateFromLanguageCodeMiddleware(WebTestBase):
     def test_default(self):
         with dj_override('en'):
             self.get_url('test_middleware.simple_view_prefixed')
-        self.assertTextPresent("A Web Page Title")
+        self.assertTextPresent("A Web Page Title", within="title")
         self.assertTextPresent("The current language code is en")
 
     def test_other(self):
@@ -85,7 +85,7 @@ class TestActivateFromLanguageCodeMiddleware(WebTestBase):
         # renders templates works with our use of an 'override' context manager.
         with dj_override('en'):
             self.get_url('test_middleware.simple_view_template_response_prefixed')
-            self.assertTextPresent("A Web Page Title")
+            self.assertTextPresent("A Web Page Title", within="title")
             self.assertTextPresent("The current language code is en")
         with dj_override('tr'):
             self.get_url('test_middleware.simple_view_template_response_prefixed')

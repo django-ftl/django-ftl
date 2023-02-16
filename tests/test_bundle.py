@@ -9,7 +9,11 @@ import time
 
 import six
 from django.test import override_settings
-from django.utils.encoding import force_text
+try:
+    from django.utils.encoding import force_str as force_str
+except ImportError:
+    from django.utils.encoding import force_str
+
 from fluent_compiler.errors import FluentJunkFound
 from testfixtures import LogCapture
 
@@ -185,11 +189,11 @@ class TestBundles(TestBase):
         bundle = Bundle(['tests/main.ftl'], default_locale='en')
 
         l = bundle.format_lazy('simple')
-        self.assertEqual(force_text(l), 'Simple')
+        self.assertEqual(force_str(l), 'Simple')
         activate('fr-FR')
-        self.assertEqual(force_text(l), 'Facile')
+        self.assertEqual(force_str(l), 'Facile')
         deactivate()
-        self.assertEqual(force_text(l), 'Simple')
+        self.assertEqual(force_str(l), 'Simple')
 
     def test_lazy_with_require_activate(self):
         bundle = Bundle(['tests/main.ftl'],
@@ -198,12 +202,12 @@ class TestBundles(TestBase):
         self.assertRaises(NoLocaleSet, bundle.format, 'simple')
         msg = bundle.format_lazy('simple')
 
-        self.assertRaises(NoLocaleSet, force_text, msg)
+        self.assertRaises(NoLocaleSet, force_str, msg)
 
         activate('en')
-        self.assertEqual(force_text(msg), 'Simple')
+        self.assertEqual(force_str(msg), 'Simple')
         activate('fr-FR')
-        self.assertEqual(force_text(msg), 'Facile')
+        self.assertEqual(force_str(msg), 'Facile')
 
     def test_prevent_module_level_format(self):
         try:
@@ -219,7 +223,7 @@ class TestBundles(TestBase):
                           text_type,
                           tests.allow_module_level_format_lazy.MyThing.my_label)
         activate('fr-FR')
-        self.assertEqual(force_text(tests.allow_module_level_format_lazy.MyThing.my_label),
+        self.assertEqual(force_str(tests.allow_module_level_format_lazy.MyThing.my_label),
                          'Facile')
 
     def test_use_isolating(self):

@@ -3,6 +3,14 @@
 History
 -------
 
+0.14 (unreleased)
++++++++++++++++++
+
+* Dropped support for Django < 2.0, added support for most recent version
+* Dropped support for Python 3.6, added support for most recent versions
+* Disabled BIDI isolation character for HTML messages - see https://github.com/django-ftl/django-ftl/issues/6
+* Modernized packaging and tests
+
 0.13 (2021-09-16)
 +++++++++++++++++
 
