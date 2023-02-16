@@ -4,3 +4,5 @@
 my-test-item-html = Welcome to { -my-title }. { -my-fancy-title-html }. Your name is { $name }.
 
 my-test-item-plain = Welcome to { -my-title }. Your name is { $name }.
+
+link-html = This is <a href="{ $url }">a link</a>
