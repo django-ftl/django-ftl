@@ -1,6 +1,3 @@
-# -*- coding: utf-8
-from __future__ import absolute_import, print_function, unicode_literals
-
 DEBUG = True
 USE_TZ = True
 USE_I18N = True
@@ -26,7 +23,7 @@ INSTALLED_APPS = [
     "tests",
 ]
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
 SITE_ID = 1
 
@@ -34,15 +31,15 @@ MIDDLEWARE = ()
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
                 "django.template.context_processors.request",
             ]
         },
     },
 ]
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = "en"

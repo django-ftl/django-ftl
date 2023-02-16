@@ -1,13 +1,10 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
-
 import os.path
 import platform
-import sys
 import threading
 import time
 
 from django.test import override_settings
+
 try:
     from django.utils.encoding import force_str as force_str
 except ImportError:
@@ -24,150 +21,147 @@ from .base import TestBase
 
 class TestBundles(TestBase):
     def test_no_locale_set_with_require_activate(self):
-        bundle = Bundle(['tests/main.ftl'],
-                        default_locale='en',
-                        require_activate=True)
-        self.assertRaises(NoLocaleSet, bundle.format, 'simple')
+        bundle = Bundle(["tests/main.ftl"], default_locale="en", require_activate=True)
+        self.assertRaises(NoLocaleSet, bundle.format, "simple")
 
     def test_require_activate_after_activate(self):
-        bundle = Bundle(['tests/main.ftl'],
-                        default_locale='en',
-                        require_activate=True)
-        activate('en')
-        self.assertEqual(bundle.format('simple'), 'Simple')
+        bundle = Bundle(["tests/main.ftl"], default_locale="en", require_activate=True)
+        activate("en")
+        self.assertEqual(bundle.format("simple"), "Simple")
         deactivate()
-        self.assertRaises(NoLocaleSet, bundle.format, 'simple')
+        self.assertRaises(NoLocaleSet, bundle.format, "simple")
 
     def test_no_locale_set_with_default_set(self):
-        bundle = Bundle(['tests/main.ftl'],
-                        require_activate=True,
-                        default_locale='en')
-        self.assertRaises(NoLocaleSet, bundle.format, 'simple')
+        bundle = Bundle(["tests/main.ftl"], require_activate=True, default_locale="en")
+        self.assertRaises(NoLocaleSet, bundle.format, "simple")
 
     def test_no_locale_set_with_good_default(self):
-        bundle = Bundle(['tests/main.ftl'],
-                        default_locale='en')
-        self.assertEqual(bundle.format('simple'), 'Simple')
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Simple")
 
-    @override_settings(FTL={'LANGUAGE_CODE': 'en'})
+    @override_settings(FTL={"LANGUAGE_CODE": "en"})
     def test_no_locale_set_with_good_default_from_settings(self):
-        bundle = Bundle(['tests/main.ftl'])
-        self.assertEqual(bundle.format('simple'), 'Simple')
+        bundle = Bundle(["tests/main.ftl"])
+        self.assertEqual(bundle.format("simple"), "Simple")
 
-    @override_settings(FTL={'LANGUAGE_CODE': 'zh'})
+    @override_settings(FTL={"LANGUAGE_CODE": "zh"})
     def test_no_locale_set_with_missing_default(self):
-        bundle = Bundle(['tests/main.ftl'])
-        self.assertRaises(FileNotFoundError, bundle.format, 'simple')
+        bundle = Bundle(["tests/main.ftl"])
+        self.assertRaises(FileNotFoundError, bundle.format, "simple")
 
     def test_default_locale_lazy(self):
         # Ensure that bundle is retrieving LANGUAGE_CODE lazily. (The only real
         # reason for this at the moment is to make testing easier).
-        bundle = Bundle(['tests/main.ftl'])
-        with override_settings(LANGUAGE_CODE='fr-FR'):
-            self.assertEqual(bundle.format('simple'), 'Facile')
+        bundle = Bundle(["tests/main.ftl"])
+        with override_settings(LANGUAGE_CODE="fr-FR"):
+            self.assertEqual(bundle.format("simple"), "Facile")
 
     def test_find_messages(self):
-        bundle = Bundle(['tests/main.ftl'])
-        activate('en')
-        self.assertEqual(bundle.format('simple'), "Simple")
+        bundle = Bundle(["tests/main.ftl"])
+        activate("en")
+        self.assertEqual(bundle.format("simple"), "Simple")
 
     def test_load_multiple_with_some_missing(self):
-        bundle = Bundle(['tests/only_in_en.ftl',
-                         'tests/main.ftl'],
-                        default_locale='en')
-        activate('fr-FR')
-        self.assertEqual(bundle.format('simple'), "Facile")
+        bundle = Bundle(["tests/only_in_en.ftl", "tests/main.ftl"], default_locale="en")
+        activate("fr-FR")
+        self.assertEqual(bundle.format("simple"), "Facile")
 
     def test_switch_locale(self):
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('simple'), "Simple")
-        activate('tr')
-        self.assertEqual(bundle.format('simple'), "Basit")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Simple")
+        activate("tr")
+        self.assertEqual(bundle.format("simple"), "Basit")
         deactivate()
-        self.assertEqual(bundle.format('simple'), "Simple")
+        self.assertEqual(bundle.format("simple"), "Simple")
 
     def test_override(self):
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('simple'), "Simple")
-        with override('tr'):
-            self.assertEqual(bundle.format('simple'), "Basit")
-            with override('fr-FR'):
-                self.assertEqual(bundle.format('simple'), "Facile")
-            self.assertEqual(bundle.format('simple'), "Basit")
-        self.assertEqual(bundle.format('simple'), "Simple")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Simple")
+        with override("tr"):
+            self.assertEqual(bundle.format("simple"), "Basit")
+            with override("fr-FR"):
+                self.assertEqual(bundle.format("simple"), "Facile")
+            self.assertEqual(bundle.format("simple"), "Basit")
+        self.assertEqual(bundle.format("simple"), "Simple")
 
     def test_fallback(self):
-        activate('tr')
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('missing-from-others'), "Missing from others")
+        activate("tr")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("missing-from-others"), "Missing from others")
 
     def test_missing(self):
-        activate('en')
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('missing-from-all'), "???")
+        activate("en")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("missing-from-all"), "???")
 
     def test_locale_matching_case_insensitive(self):
-        activate('fr-fr')
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('simple'), 'Facile')
+        activate("fr-fr")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Facile")
 
-        activate('EN')
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('simple'), 'Simple')
+        activate("EN")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Simple")
 
     def test_handle_underscores_in_locale_name(self):
-        activate('fr_FR')
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('simple'), 'Facile')
+        activate("fr_FR")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Facile")
 
     def test_locale_matching_for_default_locale(self):
-        activate('zh')
-        bundle = Bundle(['tests/main.ftl'], default_locale='EN')  # 'EN' not 'en'
-        self.assertEqual(bundle.format('simple'), 'Simple')
+        activate("zh")
+        bundle = Bundle(["tests/main.ftl"], default_locale="EN")  # 'EN' not 'en'
+        self.assertEqual(bundle.format("simple"), "Simple")
 
     def test_locale_range_lookup(self):
         # en-US does not exist, but 'en' does and should be found
-        activate('en-US')
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('simple'), 'Simple')
+        activate("en-US")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Simple")
 
     def test_locale_range_lookup_missing(self):
         # There is no fr or fr-XY (only fr-FR), neither of these should fallback
         # to fr-FR
-        activate('fr')
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('simple'), 'Simple')
+        activate("fr")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Simple")
 
-        activate('fr-XY')
-        bundle = Bundle(['tests/main.ftl'])
-        self.assertEqual(bundle.format('simple'), 'Simple')
+        activate("fr-XY")
+        bundle = Bundle(["tests/main.ftl"])
+        self.assertEqual(bundle.format("simple"), "Simple")
 
     def test_locale_range_lookup_list(self):
         # fr-XY doesn't exist, fr-FR does
-        activate('fr-XY, fr-FR')
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('simple'), 'Facile')
+        activate("fr-XY, fr-FR")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Facile")
 
         # en-GB doesn't exist, en does
-        activate('en-GB, en')
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('simple'), 'Simple')
+        activate("en-GB, en")
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(bundle.format("simple"), "Simple")
 
     def test_missing_ftl_file(self):
-        activate('en')
-        bundle = Bundle(['tests/non-existant.ftl'], default_locale='en')
-        self.assertRaises(FileNotFoundError, bundle.format, 'simple')
+        activate("en")
+        bundle = Bundle(["tests/non-existant.ftl"], default_locale="en")
+        self.assertRaises(FileNotFoundError, bundle.format, "simple")
 
     def test_number_formatting(self):
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
-                         'Score: \u20681,234,567\u2069')
-        activate('fr-FR')
-        self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
-                         'Points: \u20681\u202f234\u202f567\u2069')
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(
+            bundle.format("with-number-argument", {"points": 1234567}),
+            "Score: \u20681,234,567\u2069",
+        )
+        activate("fr-FR")
+        self.assertEqual(
+            bundle.format("with-number-argument", {"points": 1234567}),
+            "Points: \u20681\u202f234\u202f567\u2069",
+        )
         deactivate()
-        self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
-                         'Score: \u20681,234,567\u2069')
+        self.assertEqual(
+            bundle.format("with-number-argument", {"points": 1234567}),
+            "Score: \u20681,234,567\u2069",
+        )
 
     def test_number_formatting_for_fallback(self):
         # When we fall back to a default, number formatting
@@ -176,35 +170,35 @@ class TestBundles(TestBase):
         # System locale  (would probably be 'en',): 1,234,567
         # French locale: 1 234 567⁩
 
-        bundle = Bundle(['tests/main.ftl'], default_locale='fr-FR')
-        activate('de')
+        bundle = Bundle(["tests/main.ftl"], default_locale="fr-FR")
+        activate("de")
         # Should get French words and formatting
-        self.assertEqual(bundle.format('with-number-argument', {'points': 1234567}),
-                         'Points: \u20681\u202f234\u202f567\u2069')
+        self.assertEqual(
+            bundle.format("with-number-argument", {"points": 1234567}),
+            "Points: \u20681\u202f234\u202f567\u2069",
+        )
 
     def test_lazy(self):
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
 
-        l = bundle.format_lazy('simple')
-        self.assertEqual(force_str(l), 'Simple')
-        activate('fr-FR')
-        self.assertEqual(force_str(l), 'Facile')
+        l = bundle.format_lazy("simple")
+        self.assertEqual(force_str(l), "Simple")
+        activate("fr-FR")
+        self.assertEqual(force_str(l), "Facile")
         deactivate()
-        self.assertEqual(force_str(l), 'Simple')
+        self.assertEqual(force_str(l), "Simple")
 
     def test_lazy_with_require_activate(self):
-        bundle = Bundle(['tests/main.ftl'],
-                        default_locale='en',
-                        require_activate=True)
-        self.assertRaises(NoLocaleSet, bundle.format, 'simple')
-        msg = bundle.format_lazy('simple')
+        bundle = Bundle(["tests/main.ftl"], default_locale="en", require_activate=True)
+        self.assertRaises(NoLocaleSet, bundle.format, "simple")
+        msg = bundle.format_lazy("simple")
 
         self.assertRaises(NoLocaleSet, force_str, msg)
 
-        activate('en')
-        self.assertEqual(force_str(msg), 'Simple')
-        activate('fr-FR')
-        self.assertEqual(force_str(msg), 'Facile')
+        activate("en")
+        self.assertEqual(force_str(msg), "Simple")
+        activate("fr-FR")
+        self.assertEqual(force_str(msg), "Facile")
 
     def test_prevent_module_level_format(self):
         try:
@@ -216,101 +210,111 @@ class TestBundles(TestBase):
 
     def test_allow_module_level_format_lazy(self):
         import tests.allow_module_level_format_lazy
-        self.assertRaises(NoLocaleSet,
-                          str,
-                          tests.allow_module_level_format_lazy.MyThing.my_label)
-        activate('fr-FR')
-        self.assertEqual(force_str(tests.allow_module_level_format_lazy.MyThing.my_label),
-                         'Facile')
+
+        self.assertRaises(
+            NoLocaleSet, str, tests.allow_module_level_format_lazy.MyThing.my_label
+        )
+        activate("fr-FR")
+        self.assertEqual(
+            force_str(tests.allow_module_level_format_lazy.MyThing.my_label), "Facile"
+        )
 
     def test_use_isolating(self):
-        bundle_1 = Bundle(['tests/main.ftl'], default_locale='en')
-        self.assertEqual(bundle_1.format('with-argument', {'user': 'Horace'}),
-                         'Hello to \u2068Horace\u2069.')
+        bundle_1 = Bundle(["tests/main.ftl"], default_locale="en")
+        self.assertEqual(
+            bundle_1.format("with-argument", {"user": "Horace"}),
+            "Hello to \u2068Horace\u2069.",
+        )
 
-        bundle_2 = Bundle(['tests/main.ftl'], default_locale='en', use_isolating=False)
-        self.assertEqual(bundle_2.format('with-argument', {'user': 'Horace'}),
-                         'Hello to Horace.')
+        bundle_2 = Bundle(["tests/main.ftl"], default_locale="en", use_isolating=False)
+        self.assertEqual(
+            bundle_2.format("with-argument", {"user": "Horace"}), "Hello to Horace."
+        )
 
     def test_logged_runtime_errors(self):
-        bundle = Bundle(['tests/main.ftl'], default_locale='en')
+        bundle = Bundle(["tests/main.ftl"], default_locale="en")
 
         def run(locale_expected):
             with LogCapture() as log:
-                self.assertEqual(bundle.format('with-argument', {}),
-                                 'Hello to \u2068user\u2069.')
+                self.assertEqual(
+                    bundle.format("with-argument", {}), "Hello to \u2068user\u2069."
+                )
                 this_file = os.path.abspath(__file__)
-                ftl_filename = os.path.normpath(os.path.join(
-                    this_file, '..', 'locales', 'en', 'tests', 'main.ftl'
-                ))
+                ftl_filename = os.path.normpath(
+                    os.path.join(this_file, "..", "locales", "en", "tests", "main.ftl")
+                )
                 log.check_present(
                     (
-                        'django_ftl.message_errors',
-                        'ERROR',
-                        "FTL exception for locale [%s], message 'with-argument', args {}: FluentReferenceError(%s'%s:5:28: Unknown external: user'%s)" % (
+                        "django_ftl.message_errors",
+                        "ERROR",
+                        "FTL exception for locale [%s], message 'with-argument', args {}: FluentReferenceError('%s:5:28: Unknown external: user')"
+                        % (
                             locale_expected,
-                            'u' if six.PY2 else '',
                             ftl_filename,
-                            ',' if sys.version_info < (3, 7) else ''
-                        )
+                        ),
                     )
                 )
 
         # Run multiple times, because second time has a different path due to caching
-        run('None')
-        run('None')
+        run("None")
+        run("None")
 
-        activate('en')
-        run('en')
-        run('en')
+        activate("en")
+        run("en")
+        run("en")
 
     def test_check_all(self):
-        bundle = Bundle(['tests/errors.ftl'], default_locale='en')
-        errors = bundle.check_all(['en'])
+        bundle = Bundle(["tests/errors.ftl"], default_locale="en")
+        errors = bundle.check_all(["en"])
         assert len(errors) == 2
         assert errors[0][0] is None
         assert isinstance(errors[0][1], FluentJunkFound)
 
-        assert errors[1][0] == 'this-has-an-error'
+        assert errors[1][0] == "this-has-an-error"
         assert isinstance(errors[1][1], TypeError)
-        assert errors[1][1].args == ("NUMBER() got an unexpected keyword argument 'xxx'",)
+        assert errors[1][1].args == (
+            "NUMBER() got an unexpected keyword argument 'xxx'",
+        )
 
     def test_custom_functions(self):
         def os_name():
             return platform.system()
 
-        bundle = Bundle(['tests/functions.ftl'], default_locale='en', functions={'OSNAME': os_name})
-        assert bundle.format('hello') == 'Hello Linux user!'
+        bundle = Bundle(
+            ["tests/functions.ftl"], default_locale="en", functions={"OSNAME": os_name}
+        )
+        assert bundle.format("hello") == "Hello Linux user!"
 
 
 class TestLocaleLookups(TestBase):
     # See https://tools.ietf.org/html/rfc4647#section-3.4
 
     def test_language(self):
-        self.assertEqual(list(locale_lookups("en")),
-                         ["en"])
+        self.assertEqual(list(locale_lookups("en")), ["en"])
 
     def test_language_and_region(self):
-        self.assertEqual(list(locale_lookups("en-US")),
-                         ["en-US", "en"])
+        self.assertEqual(list(locale_lookups("en-US")), ["en-US", "en"])
 
     def test_extra_subtags(self):
-        self.assertEqual(list(locale_lookups("zh-Hant-CN-x-private1-private2")),
-                         ["zh-Hant-CN-x-private1-private2",
-                          "zh-Hant-CN-x-private1",
-                          "zh-Hant-CN",
-                          "zh-Hant",
-                          "zh"])
+        self.assertEqual(
+            list(locale_lookups("zh-Hant-CN-x-private1-private2")),
+            [
+                "zh-Hant-CN-x-private1-private2",
+                "zh-Hant-CN-x-private1",
+                "zh-Hant-CN",
+                "zh-Hant",
+                "zh",
+            ],
+        )
 
     def test_list(self):
-        self.assertEqual(list(locale_lookups("en-US, fr-FR")),
-                         ["en-US", "en", "fr-FR", "fr"])
+        self.assertEqual(
+            list(locale_lookups("en-US, fr-FR")), ["en-US", "en", "fr-FR", "fr"]
+        )
 
     def test_eliminates_dupes(self):
         # This would be en-GB, en, en without dupe elimination
-        self.assertEqual(list(locale_lookups("en-GB, en")),
-                         ["en-GB",
-                          "en"])
+        self.assertEqual(list(locale_lookups("en-GB, en")), ["en-GB", "en"])
 
 
 class TestBundleThreadSafe(TestBase):
@@ -318,9 +322,7 @@ class TestBundleThreadSafe(TestBase):
         # Not a proof, but a demonstration that a single Bundle can handle
         # threads with different locale values without getting confused.
 
-        bundle = Bundle(['tests/main.ftl'],
-                        default_locale='en',
-                        require_activate=True)
+        bundle = Bundle(["tests/main.ftl"], default_locale="en", require_activate=True)
         lock = threading.Lock()
 
         output = []
@@ -337,26 +339,26 @@ class TestBundleThreadSafe(TestBase):
 
         def thread_1():
             with lock:
-                activate('en')
-                output.append((1, bundle.format('simple')))
+                activate("en")
+                output.append((1, bundle.format("simple")))
             wait_until_output(2)
             with lock:
                 # Should still be in English,
-                output.append((1, bundle.format('simple')))
+                output.append((1, bundle.format("simple")))
 
         def thread_2():
             # Make sure thread_1 goes first:
             wait_until_output(1)
             with lock:
-                activate('fr-FR')
-                output.append((2, bundle.format('simple')))
+                activate("fr-FR")
+                output.append((2, bundle.format("simple")))
             wait_until_output(3)
             with lock:
                 # Should still be French
-                output.append((2, bundle.format('simple')))
-                activate('en')
+                output.append((2, bundle.format("simple")))
+                activate("en")
                 # Should allow switching
-                output.append((2, bundle.format('simple')))
+                output.append((2, bundle.format("simple")))
 
         t1 = threading.Thread(target=thread_1)
         t2 = threading.Thread(target=thread_2)
@@ -365,11 +367,13 @@ class TestBundleThreadSafe(TestBase):
         t1.join()
         t2.join()
 
-        self.assertEqual(output,
-                         [
-                             (1, 'Simple'),
-                             (2, 'Facile'),
-                             (1, 'Simple'),
-                             (2, 'Facile'),
-                             (2, 'Simple'),
-                         ])
+        self.assertEqual(
+            output,
+            [
+                (1, "Simple"),
+                (2, "Facile"),
+                (1, "Simple"),
+                (2, "Facile"),
+                (2, "Simple"),
+            ],
+        )

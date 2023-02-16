@@ -2,6 +2,7 @@ include *.rst
 include *.py
 include LICENSE
 include *.ini
+include *.yaml
 include release.sh
 include requirements*.txt
 include .coveragerc

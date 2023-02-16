@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, unicode_literals
-
 from .bundles import activator
 
 try:
@@ -9,7 +7,7 @@ except ImportError:
     from django.utils.decorators import ContextDecorator
 
 
-__version__ = '0.13'
+__version__ = "0.13"
 
 
 def activate(locale):

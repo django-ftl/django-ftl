@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, unicode_literals
-
 import contextlib
 
 from django import template
@@ -10,13 +8,11 @@ import django_ftl
 
 register = template.Library()
 
-MODE_SERVER = 'server'
-MODES = [
-    MODE_SERVER
-]
+MODE_SERVER = "server"
+MODES = [MODE_SERVER]
 
-MODE_VAR_NAME = '__ftl_mode'
-BUNDLE_VAR_NAME = '__ftl_bundle'
+MODE_VAR_NAME = "__ftl_mode"
+BUNDLE_VAR_NAME = "__ftl_bundle"
 
 
 @register.simple_tag(takes_context=True)
@@ -26,7 +22,7 @@ def ftlconf(context, mode=None, bundle=None):
         context[MODE_VAR_NAME] = mode
     if bundle is not None:
         context[BUNDLE_VAR_NAME] = resolve_bundle(bundle)
-    return ''
+    return ""
 
 
 def resolve_bundle(bundle):
@@ -50,8 +46,7 @@ def ftlmsg(context, message_id, **kwargs):
 
 def validate_mode(mode):
     if mode not in MODES:
-        raise ValueError("mode '{0}' not understood, must be one of {1}"
-                         .format(mode, MODES))
+        raise ValueError(f"mode '{mode}' not understood, must be one of {MODES}")
 
 
 class WithFtlNode(template.Node):
@@ -62,14 +57,18 @@ class WithFtlNode(template.Node):
         self.bundle = bundle
 
     def __repr__(self):
-        return '<%s>' % self.__class__.__name__
+        return f"<{self.__class__.__name__}>"
 
     def render(self, context):
         language = None if self.language is None else self.language.resolve(context)
         mode = None if self.mode is None else self.mode.resolve(context)
         if mode is not None:
             validate_mode(mode)
-        bundle = None if self.bundle is None else resolve_bundle(self.bundle.resolve(context))
+        bundle = (
+            None
+            if self.bundle is None
+            else resolve_bundle(self.bundle.resolve(context))
+        )
         new_context = {}
         if mode is not None:
             new_context[MODE_VAR_NAME] = mode
@@ -85,22 +84,22 @@ class WithFtlNode(template.Node):
                 return self.nodelist.render(context)
 
 
-@register.tag('withftl')
+@register.tag("withftl")
 def withftl(parser, token):
     conf = token_kwargs(token.split_contents()[1:], parser, support_legacy=False)
-    language = conf.pop('language', None)
-    mode = conf.pop('mode', None)
-    bundle = conf.pop('bundle', None)
+    language = conf.pop("language", None)
+    mode = conf.pop("mode", None)
+    bundle = conf.pop("bundle", None)
     if conf:
-        raise ValueError("withftl tag received unexpected keyword arguments: {0}"
-                         .format(", ".join(conf.keys())))
-    nodelist = parser.parse(('endwithftl',))
+        raise ValueError(
+            "withftl tag received unexpected keyword arguments: {}".format(
+                ", ".join(conf.keys())
+            )
+        )
+    nodelist = parser.parse(("endwithftl",))
     parser.delete_first_token()
 
-    return WithFtlNode(nodelist,
-                       language=language,
-                       mode=mode,
-                       bundle=bundle)
+    return WithFtlNode(nodelist, language=language, mode=mode, bundle=bundle)
 
 
 @contextlib.contextmanager

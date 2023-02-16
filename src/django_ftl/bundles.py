@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, unicode_literals
-
 import logging
 import os
 from collections import OrderedDict
@@ -30,7 +28,7 @@ except ImportError:
 
 _active_locale = local()
 
-ftl_logger = logging.getLogger('django_ftl.message_errors')
+ftl_logger = logging.getLogger("django_ftl.message_errors")
 
 
 class NoLocaleSet(AssertionError):
@@ -39,6 +37,7 @@ class NoLocaleSet(AssertionError):
 
 def get_app_locale_dirs():
     from django.apps import apps
+
     dirs = []
     for app_config in apps.get_app_configs():
         if not app_config.path:
@@ -53,8 +52,7 @@ class FileNotFoundError(RuntimeError):
     pass
 
 
-class MessageFinderBase(object):
-
+class MessageFinderBase:
     @property
     def locale_base_dirs(self):
         raise NotImplementedError()
@@ -78,28 +76,26 @@ class MessageFinderBase(object):
             else:
                 tried.append(full_path)
 
-        raise FileNotFoundError("Could not find locate FTL file {0}/{1}. Tried: {2}"
-                                .format(locale, path,
-                                        ", ".join(tried)))
+        raise FileNotFoundError(
+            f"Could not find locate FTL file {locale}/{path}. Tried: {', '.join(tried)}"
+        )
 
 
 def normalize_bcp47(locale):
-    return locale.lower().replace('_', '-')
+    return locale.lower().replace("_", "-")
 
 
 @lru_cache(maxsize=None)
 def locale_dirs_at_path(base):
-    dirs_found = [p for p in
-                  [os.path.join(base, e) for e in os.listdir(base)]
-                  if os.path.isdir(p)]
+    dirs_found = [
+        p for p in [os.path.join(base, e) for e in os.listdir(base)] if os.path.isdir(p)
+    ]
 
     # Apply normalization and return mapping from locale nane to directory.
-    return {normalize_bcp47(os.path.basename(p)): p
-            for p in dirs_found}
+    return {normalize_bcp47(os.path.basename(p)): p for p in dirs_found}
 
 
 class DjangoMessageFinder(MessageFinderBase):
-
     @cached_property
     def locale_base_dirs(self):
         return get_app_locale_dirs()
@@ -108,8 +104,7 @@ class DjangoMessageFinder(MessageFinderBase):
 default_finder = DjangoMessageFinder()
 
 
-class LanguageActivator(object):
-
+class LanguageActivator:
     def activate(self, locale):
         old_value = self.get_current_value()
         if old_value == locale:
@@ -120,7 +115,7 @@ class LanguageActivator(object):
         self.activate(None)
 
     def get_current_value(self):
-        return getattr(_active_locale, 'value', None)
+        return getattr(_active_locale, "value", None)
 
 
 activator = LanguageActivator()
@@ -128,25 +123,27 @@ activator = LanguageActivator()
 
 html_escaper = make_namespace(
     name="django_html_escaper",
-    select=lambda message_id=None, **hints: message_id.endswith('-html'),
+    select=lambda message_id=None, **hints: message_id.endswith("-html"),
     output_type=SafeString,
     mark_escaped=mark_html_escaped,
     escape=conditional_html_escape,
-    join=lambda parts: mark_html_escaped(''.join(conditional_html_escape(p) for p in parts)),
+    join=lambda parts: mark_html_escaped(
+        "".join(conditional_html_escape(p) for p in parts)
+    ),
     use_isolating=False,
 )
 
 
-class Bundle(object):
+class Bundle:
     def __init__(
-            self,
-            paths,
-            default_locale=None,
-            use_isolating=True,
-            require_activate=False,
-            auto_reload=None,
-            finder=default_finder,
-            functions=None,
+        self,
+        paths,
+        default_locale=None,
+        use_isolating=True,
+        require_activate=False,
+        auto_reload=None,
+        finder=default_finder,
+        functions=None,
     ):
 
         self._paths = paths
@@ -158,20 +155,23 @@ class Bundle(object):
         self._functions = functions or {}
 
         if auto_reload is None:
-            auto_reload = get_setting('AUTO_RELOAD_BUNDLES', None)
+            auto_reload = get_setting("AUTO_RELOAD_BUNDLES", None)
 
         if auto_reload is None:
             if settings.DEBUG:
                 try:
                     import pyinotify  # noqa
                 except ImportError:
-                    ftl_logger.warning("Not using django_ftl autoreloader because pyinotify is not installed. Set `Bundle.auto_reload` or `AUTO_RELOAD_BUNDLES` to `False` to disable this warning.")
+                    ftl_logger.warning(
+                        "Not using django_ftl autoreloader because pyinotify is not installed. Set `Bundle.auto_reload` or `AUTO_RELOAD_BUNDLES` to `False` to disable this warning."
+                    )
                 else:
                     auto_reload = True
 
         if auto_reload:
             # import at this point to avoid importing pyinotify if we don't need it.
             from .autoreload import create_bundle_reloader
+
             self._reloader = create_bundle_reloader(self)
         else:
             self._reloader = None
@@ -187,7 +187,7 @@ class Bundle(object):
         if default_locale is not None:
             return default_locale
 
-        return get_setting('LANGUAGE_CODE')
+        return get_setting("LANGUAGE_CODE")
 
     def get_compiled_unit_for_locale_list(self, locales):
         for locale in locales:
@@ -218,7 +218,6 @@ class Bundle(object):
                 try:
                     resource = self._finder.load(locale, path, reloader=self._reloader)
                 except FileNotFoundError:
-                    pass
                     if locale == self._get_default_locale():
                         # Can't find any FTL with the specified filename, we
                         # want to bail early and alert developer.
@@ -247,7 +246,7 @@ class Bundle(object):
         # FAST PATH:
         # Avoid Activator.get_current_value() here because it adds measurable
         # overhead.
-        current_locale = getattr(_active_locale, 'value', None)
+        current_locale = getattr(_active_locale, "value", None)
         errors = []
         try:
             func = self._message_function_cache[current_locale, message_id]
@@ -255,8 +254,10 @@ class Bundle(object):
             # SLOW PATH:
             if current_locale is None:
                 if self._require_activate:
-                    raise NoLocaleSet("activate() must be used before using Bundle.format "
-                                      "- or, use Bundle(require_activate=False)")
+                    raise NoLocaleSet(
+                        "activate() must be used before using Bundle.format "
+                        "- or, use Bundle(require_activate=False)"
+                    )
 
             # current_locale can be `None`, and we will create cache entries
             # against (None, message_id). This gives us small performance
@@ -289,16 +290,14 @@ class Bundle(object):
 
     format_lazy = lazy(format, str)
 
-    def _log_error(self,
-                   locale,
-                   message_id,
-                   args,
-                   exception):
-        ftl_logger.error("FTL exception for locale [%s], message '%s', args %r: %s",
-                         locale,
-                         message_id,
-                         args,
-                         repr(exception))
+    def _log_error(self, locale, message_id, args, exception):
+        ftl_logger.error(
+            "FTL exception for locale [%s], message '%s', args %r: %s",
+            locale,
+            message_id,
+            args,
+            repr(exception),
+        )
 
     def check_all(self, locales):
         errors = []
@@ -309,18 +308,18 @@ class Bundle(object):
 
 
 def _missing_message(args, errors):
-    return '???'
+    return "???"
 
 
 def locale_lookups(locale):
     """
     Utility for implementing RFC 4647 lookup algorithm
     """
-    if ',' in locale:
+    if "," in locale:
         locales = [l.strip() for l in locale.split(",")]
         return uniquify(sum(map(locale_lookups, locales), []))
 
-    parts = locale.split('-')
+    parts = locale.split("-")
     locales = []
     current = None
     for p in parts:

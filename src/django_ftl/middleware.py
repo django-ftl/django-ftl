@@ -1,6 +1,5 @@
-from __future__ import absolute_import, print_function, unicode_literals
-
 from django.conf import settings
+
 try:
     from django.utils.translation import LANGUAGE_SESSION_KEY
 except ImportError:
@@ -20,10 +19,13 @@ def activate_from_request_session(get_response):
     used in conjunction with `set_language` Django view.
     Internally uses request.session and/or cookies for Fluent translations.
     """
+
     def middleware(request):
         if LANGUAGE_SESSION_KEY is not None:
             # Django < 4
-            language_code = request.session.get(LANGUAGE_SESSION_KEY, settings.LANGUAGE_CODE)
+            language_code = request.session.get(
+                LANGUAGE_SESSION_KEY, settings.LANGUAGE_CODE
+            )
         else:
             language_code = get_language_from_request(request)
         request.LANGUAGE_CODE = language_code
@@ -41,6 +43,7 @@ def activate_from_request_language_code(get_response):
 
     Requires USE_I18N = True.
     """
+
     def middleware(request):
         with override(request.LANGUAGE_CODE):
             return get_response(request)
