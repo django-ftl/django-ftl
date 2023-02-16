@@ -78,7 +78,7 @@ Ready to contribute? Here's how to set up ``django-ftl`` for local development.
    tests, including testing other Python versions with tox::
 
         $ pip install -r requirements_test.txt
-        $ ./runtests.py
+        $ pytest
         $ flake8 src tests
 
     To run tests against all supported versions::
@@ -86,10 +86,6 @@ Ready to contribute? Here's how to set up ``django-ftl`` for local development.
         $ pip install tox
         $ tox
 
-    You can also run tests with pytest, which has lots of improvements::
-
-        $ pip install pytest pytest-django
-        $ pytest
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -98,6 +94,19 @@ Ready to contribute? Here's how to set up ``django-ftl`` for local development.
     $ git push origin name-of-your-bugfix-or-feature
 
 7. Submit a pull request through the GitHub website.
+
+We also have several linters and code formatters that we require use of,
+including `flake8 <http://flake8.pycqa.org/en/latest/>`_, `isort
+<https://github.com/timothycrosley/isort#readme>`_ and `black
+<https://github.com/psf/black>`_. These are most easily add by using `pre-commit
+<https://pre-commit.com/>`_:
+
+* Install pre-commit globally e.g. ``pipx install pre-commit`` if you already
+  have `pipx <https://github.com/pypa/pipx>`_.
+
+* Do ``pre-commit install`` in the repo.
+
+Now all the linters will run when you commit changes.
 
 Pull Request Guidelines
 -----------------------
@@ -111,11 +120,3 @@ Before you submit a pull request, check that it meets these guidelines:
 3. The pull request should work for Python 3.6 at least. Check
    https://travis-ci.org/django-ftl/django-ftl/pull_requests and make sure that
    the tests pass for all supported Python versions.
-
-Tips
-----
-
-To run a specific test or subset of tests, use dotted paths to
-module/class/method e.g.::
-
-    $ ./runtests.py tests.test_bundle.TestBundles.test_fallback

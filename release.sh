@@ -6,7 +6,7 @@ set -x
 check-manifest || exit 1
 isort || exit 1
 flake8 || exit 1
-./runtests.py || exit 1
+pytest || exit 1
 
 umask 000
 rm -rf build dist

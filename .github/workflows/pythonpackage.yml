@@ -48,7 +48,7 @@ jobs:
         pip install -r requirements-test.txt
     - name: Tests
       run: |
-        ./runtests.py
+        pytest
 
   flake8:
     runs-on: ubuntu-latest
