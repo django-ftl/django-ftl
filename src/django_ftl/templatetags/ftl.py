@@ -2,7 +2,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import contextlib
 
-import six
 from django import template
 from django.template.base import token_kwargs
 from django.utils.module_loading import import_string
@@ -31,7 +30,7 @@ def ftlconf(context, mode=None, bundle=None):
 
 
 def resolve_bundle(bundle):
-    if isinstance(bundle, six.text_type):
+    if isinstance(bundle, str):
         return import_string(bundle)
     else:
         return bundle

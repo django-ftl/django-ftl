@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-import six
 from django.utils.html import mark_safe
 
 from django_ftl.bundles import Bundle
@@ -12,9 +11,6 @@ try:
     from django.utils.html import SafeText as SafeString
 except ImportError:
     from django.utils.html import SafeString
-
-
-text_type = six.text_type
 
 
 bundle = Bundle(['tests/escaping.ftl'],
@@ -37,7 +33,7 @@ class TestBundles(TestBase):
     def test_plain(self):
         val = bundle.format('my-test-item-plain', {'name': 'Me & My Friends'})
         self.assertEqual(val, 'Welcome to \u2068Jack & Jill\u2069. Your name is \u2068Me & My Friends\u2069.')
-        self.assertEqual(type(val), text_type)
+        self.assertEqual(type(val), str)
 
     def test_isolating(self):
         # We need use_isolating=False otherwise the link won't work

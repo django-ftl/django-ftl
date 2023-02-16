@@ -5,7 +5,6 @@ import os
 from collections import OrderedDict
 from threading import Lock, local
 
-import six
 from babel.core import UnknownLocaleError
 from django.conf import settings
 from django.utils.functional import cached_property, lazy
@@ -32,8 +31,6 @@ except ImportError:
 _active_locale = local()
 
 ftl_logger = logging.getLogger('django_ftl.message_errors')
-
-text_type = six.text_type
 
 
 class NoLocaleSet(AssertionError):
@@ -290,7 +287,7 @@ class Bundle(object):
                 self._log_error(current_locale, message_id, args, e)
         return value
 
-    format_lazy = lazy(format, text_type)
+    format_lazy = lazy(format, str)
 
     def _log_error(self,
                    locale,

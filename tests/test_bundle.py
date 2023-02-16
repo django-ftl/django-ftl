@@ -7,7 +7,6 @@ import sys
 import threading
 import time
 
-import six
 from django.test import override_settings
 try:
     from django.utils.encoding import force_str as force_str
@@ -21,8 +20,6 @@ from django_ftl import activate, deactivate, override
 from django_ftl.bundles import Bundle, FileNotFoundError, NoLocaleSet, locale_lookups
 
 from .base import TestBase
-
-text_type = six.text_type
 
 
 class TestBundles(TestBase):
@@ -220,7 +217,7 @@ class TestBundles(TestBase):
     def test_allow_module_level_format_lazy(self):
         import tests.allow_module_level_format_lazy
         self.assertRaises(NoLocaleSet,
-                          text_type,
+                          str,
                           tests.allow_module_level_format_lazy.MyThing.my_label)
         activate('fr-FR')
         self.assertEqual(force_str(tests.allow_module_level_format_lazy.MyThing.my_label),
