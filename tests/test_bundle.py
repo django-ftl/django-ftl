@@ -283,7 +283,7 @@ class TestBundles(TestBase):
         bundle = Bundle(
             ["tests/functions.ftl"], default_locale="en", functions={"OSNAME": os_name}
         )
-        assert bundle.format("hello") == "Hello Linux user!"
+        assert bundle.format("hello") == "Hello {} user!".format(platform.system())
 
 
 class TestLocaleLookups(TestBase):
