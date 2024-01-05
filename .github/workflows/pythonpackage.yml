@@ -13,6 +13,8 @@ jobs:
       matrix:
         # Pick a few items to try to get a broad coverage, without checking all
         # combos
+
+        # Should be synced with tox.ini
         include:
         - python-version: 3.7
           django-version: 2.0.13
@@ -30,6 +32,8 @@ jobs:
           django-version: 4.0.10
         - python-version: "3.11"
           django-version: 4.1.7
+        - python-version: "3.12"
+          django-version: 5.0.1
 
     steps:
     - uses: actions/checkout@v2
