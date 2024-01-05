@@ -3,6 +3,11 @@
 History
 -------
 
+0.15 (unreleased)
++++++++++++++++++
+
+* Added support for Django 5 and Python 3.12
+
 0.14 (2023-02-16)
 +++++++++++++++++
 
