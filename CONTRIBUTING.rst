@@ -77,7 +77,7 @@ Ready to contribute? Here's how to set up ``django-ftl`` for local development.
 5. When you're done making changes, check that your changes pass flake8 and the
    tests, including testing other Python versions with tox::
 
-        $ pip install -r requirements_test.txt
+        $ pip install -r requirements-test.txt
         $ pytest
         $ flake8 src tests
 
