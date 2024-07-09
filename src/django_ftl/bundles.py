@@ -60,6 +60,7 @@ class MessageFinderBase:
     def load(self, locale, path, reloader=None):
         locale = normalize_bcp47(locale)
         all_bases = self.locale_base_dirs
+        resources = []
         tried = []
         for i, base in enumerate(all_bases):
             try:
@@ -72,13 +73,16 @@ class MessageFinderBase:
             if os.path.exists(full_path):
                 if reloader is not None:
                     reloader.add_watched_path(full_path)
-                return FtlResource.from_file(full_path)
+                resources.append(FtlResource.from_file(full_path))
             else:
                 tried.append(full_path)
 
-        raise FileNotFoundError(
-            f"Could not find locate FTL file {locale}/{path}. Tried: {', '.join(tried)}"
-        )
+        if not resources:
+            raise FileNotFoundError(
+                f"Could not find locate FTL file {locale}/{path}. Tried: {', '.join(tried)}"
+            )
+
+        return resources
 
 
 def normalize_bcp47(locale):
@@ -216,15 +220,15 @@ class Bundle:
             resources = []
             for path in self._paths:
                 try:
-                    resource = self._finder.load(locale, path, reloader=self._reloader)
+                    resources += self._finder.load(
+                        locale, path, reloader=self._reloader
+                    )
                 except FileNotFoundError:
                     if locale == self._get_default_locale():
                         # Can't find any FTL with the specified filename, we
                         # want to bail early and alert developer.
                         raise
                     # Allow missing files otherwise
-                else:
-                    resources.append(resource)
 
             unit = compile_messages(
                 locale,
